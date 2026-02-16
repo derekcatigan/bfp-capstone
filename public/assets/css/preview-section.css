@@ -1,0 +1,7 @@
+.form-line {
+    display: inline-block;
+    width: 260px;
+    border-bottom: 1px solid black;
+    height: 1.2em;
+    vertical-align: bottom;
+}
