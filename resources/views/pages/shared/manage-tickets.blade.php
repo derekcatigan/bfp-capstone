@@ -128,7 +128,8 @@
             {{-- YEAR --}}
             <select name="year" class="select select-bordered w-full">
                 <option value="">All Years</option>
-                @foreach(range(now()->year - 5, now()->year) as $y)
+
+                @foreach(array_reverse(range(now()->year - 5, now()->year)) as $y)
                     <option value="{{ $y }}" {{ request('year') == $y ? 'selected' : '' }}>
                         {{ $y }}
                     </option>

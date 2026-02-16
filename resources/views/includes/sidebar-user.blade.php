@@ -79,4 +79,52 @@
         </details>
     </li>
 </div>
+
+<div class="space-y-1">
+    <p>Manage Tickets</p>
+    <li>
+        {{-- Tickets Links --}}
+        <details>
+            <summary
+                class="{{ Request::routeIs() ? 'bg-gray-200 p-3 border-l-2 border-blue-500 rounded-l-sm mb-1' : 'p-3 mb-1' }}">
+                <svg class="h-[1em]" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor"
+                    viewBox="0 0 24 24">
+                    <!--Boxicons v3.0.8 https://boxicons.com | License  https://docs.boxicons.com/free-->
+                    <path
+                        d="M21 11h-3V5c0-1.1-.9-2-2-2H4c-1.1 0-2 .9-2 2v13c0 1.65 1.35 3 3 3h14c1.65 0 3-1.35 3-3v-6c0-.55-.45-1-1-1M5 19c-.55 0-1-.45-1-1V5h12v13a3 3 0 0 0 .17 1zm15-1c0 .55-.45 1-1 1s-1-.45-1-1v-5h2z">
+                    </path>
+                    <path d="M6 7h8v2H6zm0 4h8v2H6zm5 4h3v2h-3z"></path>
+                </svg>
+                Manage Vehicles
+            </summary>
+            <ul>
+                <li>
+                    <a href="#"
+                        class="{{ Request::routeIs() ? 'bg-gray-200 p-3 border-l-2 border-blue-500 rounded-l-sm' : 'p-3' }}">
+                        <svg class="h-[1em]" xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                            fill="currentColor" viewBox="0 0 24 24">
+                            <!--Boxicons v3.0.8 https://boxicons.com | License  https://docs.boxicons.com/free-->
+                            <path
+                                d="m19.94 7.68-.03-.09a.8.8 0 0 0-.2-.29l-5-5c-.09-.09-.19-.15-.29-.2l-.09-.03a.8.8 0 0 0-.26-.05c-.02 0-.04-.01-.06-.01H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2v-12s-.01-.04-.01-.06c0-.09-.02-.17-.05-.26ZM6 20V4h7v4c0 .55.45 1 1 1h4v11z">
+                            </path>
+                            <path d="M8 11h8v2H8zm0 4h8v2H8zm0-8h3v2H8z"></path>
+                        </svg>
+                        Manage Vehicles
+                    </a>
+                </li>
+                <li>
+                    <a href="{{ route('vehicle.create') }}"
+                        class="{{ Request::routeIs('vehicle.create') ? 'bg-gray-200 p-3 border-l-2 border-blue-500 rounded-l-sm' : 'p-3' }}">
+                        <svg class="h-[1em]" xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                            fill="currentColor" viewBox="0 0 24 24">
+                            <!--Boxicons v3.0.8 https://boxicons.com | License  https://docs.boxicons.com/free-->
+                            <path d="M3 13h8v8h2v-8h8v-2h-8V3h-2v8H3z"></path>
+                        </svg>
+                        Create Vehicle
+                    </a>
+                </li>
+            </ul>
+        </details>
+    </li>
+</div>
 @endrole
