@@ -90,7 +90,7 @@ Route::middleware('auth')->group(function () {
                 'status' => true,
             ]);
 
-            return back();
+            return redirect()->route('ticket.create');
         })->name('ticket.request.approve');
 
         // Reject Request Trip Ticket

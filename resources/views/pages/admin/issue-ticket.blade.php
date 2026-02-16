@@ -37,13 +37,11 @@
                         <legend class="fieldset-legend">Driver Name:</legend>
                         <select name="driver_id" id="driver_id" class="select w-full">
                             <option disabled selected>Select Driver Name</option>
-
                             @foreach ($drivers as $driver)
                                 <option value="{{ $driver->id }}">
                                     {{ $driver->profile->first_name }} {{ $driver->profile->last_name }}
                                 </option>
                             @endforeach
-
                         </select>
                     </fieldset>
 
@@ -53,7 +51,7 @@
                             <option disabled selected>Select Plate No</option>
 
                             @foreach ($vehicles as $vehicle)
-                                <option value="{{ $vehicle->id }}">
+                                <option value="{{ $vehicle->id }}" data-status="{{ $vehicle->status }}">
                                     {{ $vehicle->plate_number }}
                                 </option>
                             @endforeach

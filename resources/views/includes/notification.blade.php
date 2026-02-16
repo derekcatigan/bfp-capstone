@@ -37,11 +37,7 @@
                         </span>
 
                         {{-- APPROVE BUTTON (Admin Only + Trip Ticket Type Only) --}}
-                        @if(
-                                auth()->user()->role === \App\Enum\RoleEnum::AdminRole
-                                && $note->type === 'trip_ticket_request'
-                            )
-
+                        @if(auth()->user()->role === \App\Enum\RoleEnum::AdminRole && $note->type === 'trip_ticket_request')
                             <div class="flex gap-1 mt-1">
 
                                 {{-- Approve --}}

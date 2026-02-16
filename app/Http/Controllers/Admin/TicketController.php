@@ -2,11 +2,11 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Models\Vehicle;
 use App\Enum\RoleEnum;
 use App\Http\Controllers\Controller;
 use App\Models\TripTicket;
 use App\Models\User;
-use App\Models\Vehicle;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -165,6 +165,28 @@ class TicketController extends Controller
 
             $userId = Auth::id();
 
+            // Check if driver already has an active ticket
+            $existingActiveTicket = TripTicket::where('driver_id', $validated['driver_id'])
+                ->where('status', 'active')
+                ->first();
+
+            if ($existingActiveTicket) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'This driver already has an active trip ticket.',
+                ], 422);
+            }
+
+            // Check if vehicle is already deployed
+            $vehicle = Vehicle::find($validated['vehicle_id']);
+            if ($vehicle->status === 'Deployed') {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'This vehicle is currently deployed. Please select another one.',
+                ], 422);
+            }
+
+            // ===== Create Trip Ticket =====
             TripTicket::create([
                 'user_id' => $userId,
                 'control_no' => $validated['control_no'],
@@ -198,9 +220,10 @@ class TicketController extends Controller
             ]);
 
             DB::commit();
+
             return response()->json([
                 'status' => 'success',
-                'message' => 'Trip ticket created successfully.',
+                'message' => 'Trip ticket created successfully and vehicle status updated.',
             ], 201);
         } catch (Throwable $e) {
             DB::rollBack();
@@ -226,11 +249,15 @@ class TicketController extends Controller
 
     public function edit(TripTicket $ticket)
     {
+        $ticket->load('vehicle');
+
         $drivers = User::with('profile')
             ->where('role', RoleEnum::DriverRole)
             ->get();
 
-        $vehicles = Vehicle::where('status', 'Available')->get();
+        $vehicles = Vehicle::where('status', 'Available')
+            ->orWhere('id', $ticket->vehicle_id)
+            ->get();
 
         return view('pages.shared.edit-ticket', compact('ticket', 'drivers', 'vehicles'));
     }
@@ -288,12 +315,29 @@ class TicketController extends Controller
             ], 422);
         }
 
-        $ticket->update(['status' => 'Submitted']);
+        DB::beginTransaction();
+        try {
+            // Update ticket status
+            $ticket->update(['status' => 'Submitted']);
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Trip ticket submitted successfully.'
-        ]);
+            // Update vehicle status back to Available
+            $ticket->vehicle()->update(['status' => 'Available']);
+
+            DB::commit();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Trip ticket submitted successfully and vehicle status updated.'
+            ]);
+        } catch (Throwable $e) {
+            DB::rollBack();
+            Log::error($e);
+
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Something went wrong.'
+            ], 500);
+        }
     }
 
     public function activate(TripTicket $ticket)
@@ -308,11 +352,28 @@ class TicketController extends Controller
             ], 422);
         }
 
-        $ticket->update(['status' => 'active']);
+        DB::beginTransaction();
+        try {
+            // Update ticket status
+            $ticket->update(['status' => 'active']);
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Trip ticket active.'
-        ]);
+            // Update vehicle status to Deployed
+            $ticket->vehicle()->update(['status' => 'Deployed']);
+
+            DB::commit();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Trip ticket active and vehicle status updated.'
+            ]);
+        } catch (Throwable $e) {
+            DB::rollBack();
+            Log::error($e);
+
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Something went wrong.'
+            ], 500);
+        }
     }
 }
