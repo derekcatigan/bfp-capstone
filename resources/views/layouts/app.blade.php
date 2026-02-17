@@ -33,7 +33,7 @@
 
     {{-- jQuery --}}
     <script src="{{ asset('assets/js/jquery-4.0.0.min.js') }}"></script>
-    @yield('scripts')
+    @stack('scripts')
 </body>
 
 </html>

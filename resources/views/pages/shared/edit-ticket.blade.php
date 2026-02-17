@@ -268,7 +268,7 @@
 
 @endsection
 
-@section('scripts')
+@push('scripts')
     <script src="{{ asset('assets/js/ticket/editTicket.js') }}"></script>
     <script src="{{ asset('assets/js/map/map.js') }}"></script>
-@endsection
+@endpush

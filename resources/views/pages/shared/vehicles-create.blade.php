@@ -174,6 +174,6 @@
     </div>
 @endsection
 
-@section('scripts')
+@push('scripts')
     <script src="{{ asset('assets/js/vehicles/vehicleCreate.js') }}"></script>
-@endsection
+@endpush

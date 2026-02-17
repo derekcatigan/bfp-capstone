@@ -52,7 +52,7 @@ function reverseGeocode(lat, lon) {
 }
 
 /* SEARCH LOCATION */
-$("#searchBtn").click(function () {
+$("#searchBtn").on("click", function () {
     let query = $("#locationSearch").val();
 
     if (!query) return;
@@ -63,21 +63,31 @@ $("#searchBtn").click(function () {
             if (!data.length) return toastr.error("Location not found");
 
             let result = data[0];
-
             let latlng = L.latLng(result.lat, result.lon);
 
             map.setView(latlng, 16);
             placeMarker(latlng);
+
             selectedAddress = result.display_name;
+
+            // Fill lat/lng instantly too
+            $("#place_lat").val(latlng.lat);
+            $("#place_lng").val(latlng.lng);
         },
     );
 });
 
 /* USE LOCATION */
 $("#selectLocationBtn").click(function () {
-    if (!selectedAddress) return toastr.error("Please select a location");
+    if (!selectedAddress || !selectedLatLng)
+        return toastr.error("Please select a location");
 
+    // Fill the visible input
     $("#places_visit").val(selectedAddress).trigger("input");
+
+    // Fill the hidden inputs for lat/lng
+    $("#place_lat").val(selectedLatLng.lat);
+    $("#place_lng").val(selectedLatLng.lng);
 
     mapModal.close();
 });

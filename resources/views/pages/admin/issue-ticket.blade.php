@@ -72,6 +72,8 @@
                                 placeholder="Select Places to Visit">
                             <button type="button" id="openMapBtn" class="btn btn-primary">Map</button>
                         </div>
+                        <input type="hidden" name="place_lat" id="place_lat">
+                        <input type="hidden" name="place_lng" id="place_lng">
                     </fieldset>
 
                     <fieldset class="fieldset">
@@ -275,7 +277,7 @@
 
 @endsection
 
-@section('scripts')
+@push('scripts')
     <script src="{{ asset('assets/js/ticket/issueTicket.js') }}"></script>
     <script src="{{ asset('assets/js/map/map.js') }}"></script>
-@endsection
+@endpush

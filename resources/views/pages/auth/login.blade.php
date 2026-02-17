@@ -93,7 +93,7 @@
     </div>
 @endsection
 
-@section('scripts')
+@push('scripts')
     <script src="{{ asset('assets/js/togglePassword.js') }}"></script>
     <script src="{{ asset('assets/js/login/login.js') }}"></script>
-@endsection
+@endpush

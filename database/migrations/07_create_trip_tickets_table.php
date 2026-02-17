@@ -23,6 +23,8 @@ return new class extends Migration
             $table->foreignUuid('vehicle_id')->constrained('vehicles')->cascadeOnDelete();
             $table->string('authorized_passenger')->nullable();
             $table->string('place')->nullable();
+            $table->decimal('latitude', 10, 7)->nullable();
+            $table->decimal('longitude', 10, 7)->nullable();
             $table->text('purpose')->nullable();
 
             // Time Logs

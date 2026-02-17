@@ -190,6 +190,6 @@
     </div>
 @endsection
 
-@section('scripts')
+@push('scripts')
     <script src="{{ asset('assets/js/account/createAccount.js') }}"></script>
-@endsection
+@endpush

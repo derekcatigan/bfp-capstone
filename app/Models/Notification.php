@@ -24,6 +24,12 @@ class Notification extends Model
         return $this->belongsTo(User::class);
     }
 
+    public function requester()
+    {
+        return $this->belongsTo(User::class, 'requester_id');
+    }
+
+
     /* SCOPES */
     public function scopeUnread($query)
     {

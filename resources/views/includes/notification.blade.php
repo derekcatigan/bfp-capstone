@@ -36,12 +36,13 @@
                             {{ $note->created_at->diffForHumans() }}
                         </span>
 
-                        {{-- APPROVE BUTTON (Admin Only + Trip Ticket Type Only) --}}
-                        @if(auth()->user()->role === \App\Enum\RoleEnum::AdminRole && $note->type === 'trip_ticket_request')
+                        @if(auth()->user()->role === \App\Enum\RoleEnum::AdminRole && in_array($note->type, ['trip_ticket_request', 'vehicle_repair_request']))
                             <div class="flex gap-1 mt-1">
 
                                 {{-- Approve --}}
-                                <form method="POST" action="{{ route('ticket.request.approve', $note->id) }}" class="w-1/2">
+                                <form method="POST"
+                                    action="{{ $note->type === 'trip_ticket_request' ? route('ticket.request.approve', $note->id) : route('vehicle.request.approve', $note->id) }}"
+                                    class="w-1/2">
                                     @csrf
                                     <button type="submit" class="btn btn-xs btn-success w-full">
                                         Approve
@@ -49,7 +50,9 @@
                                 </form>
 
                                 {{-- Reject --}}
-                                <form method="POST" action="{{ route('ticket.request.reject', $note->id) }}" class="w-1/2">
+                                <form method="POST"
+                                    action="{{ $note->type === 'trip_ticket_request' ? route('ticket.request.reject', $note->id) : route('vehicle.request.reject', $note->id) }}"
+                                    class="w-1/2">
                                     @csrf
                                     <button type="submit" class="btn btn-xs btn-error w-full">
                                         Reject

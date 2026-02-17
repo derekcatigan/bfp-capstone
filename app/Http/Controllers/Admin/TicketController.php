@@ -124,6 +124,8 @@ class TicketController extends Controller
 
             'authorized_passenger' => ['required', 'string', 'max:255'],
             'places_visit' => ['required', 'string', 'max:255'],
+            'place_lat' => ['required', 'numeric', 'between:-90,90'],
+            'place_lng' => ['required', 'numeric', 'between:-180,180'],
             'purpose' => ['required', 'string', 'max:500'],
 
             // ================= TIME =================
@@ -195,6 +197,8 @@ class TicketController extends Controller
                 'vehicle_id' => $validated['vehicle_id'],
                 'authorized_passenger' => $validated['authorized_passenger'],
                 'place' => $validated['places_visit'],
+                'latitude' => $validated['place_lat'],
+                'longitude' => $validated['place_lng'],
                 'purpose' => $validated['purpose'],
                 'time_departed_garage' => $validated['time_departed'],
                 'time_arrival_destination' => $validated['time_arrival_destination'],

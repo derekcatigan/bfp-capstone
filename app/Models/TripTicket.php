@@ -19,6 +19,8 @@ class TripTicket extends Model
         'vehicle_id',
         'authorized_passenger',
         'place',
+        'latitude',
+        'longitude',
         'purpose',
         'time_departed_garage',
         'time_arrival_destination',

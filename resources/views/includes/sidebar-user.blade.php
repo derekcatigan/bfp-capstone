@@ -123,6 +123,17 @@
                         Create Vehicle
                     </a>
                 </li>
+                <li>
+                    <a href="{{ route('request.vehicle.index') }}"
+                        class="{{ Request::routeIs('request.vehicle.index') ? 'bg-gray-200 p-3 border-l-2 border-blue-500 rounded-l-sm' : 'p-3' }}">
+                        <svg class="h-[1em]" xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                            fill="currentColor" viewBox="0 0 24 24">
+                            <!--Boxicons v3.0.8 https://boxicons.com | License  https://docs.boxicons.com/free-->
+                            <path d="M3 13h8v8h2v-8h8v-2h-8V3h-2v8H3z"></path>
+                        </svg>
+                        Request Vehicle
+                    </a>
+                </li>
             </ul>
         </details>
     </li>

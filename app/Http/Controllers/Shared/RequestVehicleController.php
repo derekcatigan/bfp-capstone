@@ -8,58 +8,57 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
-class RequestTicketController extends Controller
+class RequestVehicleController extends Controller
 {
     public function index()
     {
-        return view('pages.shared.request-ticket');
+        return view('pages.shared.request-vehicle');
     }
 
     public function store()
     {
         $user = Auth::user();
 
-        // 🚫 Check if user already has a pending request
+        // prevent duplicate pending
         $existingRequest = Notification::where('requester_id', $user->id)
-            ->where('type', 'trip_ticket_request')
+            ->where('type', 'vehicle_repair_request')
             ->where('status', true)
             ->exists();
 
         if ($existingRequest) {
-            return back()->with('error', 'You already have a pending trip ticket request. Please wait for admin approval.');
+            return back()->with('error', 'You already have a pending vehicle repair request.');
         }
 
         $fullName = optional($user->profile)->first_name . ' ' .
             optional($user->profile)->last_name;
 
-        // Get all admins
         $admins = User::where('role', 'admin')->pluck('id');
 
         foreach ($admins as $adminId) {
             Notification::create([
                 'user_id' => $adminId,
                 'requester_id' => $user->id,
-                'type' => 'trip_ticket_request',
-                'title' => 'Request Trip Ticket',
-                'message' => "{$fullName} requested a trip ticket.",
-                'status' => true, // pending
+                'type' => 'vehicle_repair_request',
+                'title' => 'Vehicle Repair Request',
+                'message' => "{$fullName} requested a vehicle repair.",
+                'status' => true,
             ]);
         }
 
-        return back()->with('success', 'Trip ticket request submitted successfully.');
+        return back()->with('success', 'Vehicle repair request submitted.');
     }
 
-    public function ticketIndex()
+    public function repairIndex()
     {
         $requests = Notification::with(['requester.profile'])
             ->whereIn('type', [
-                'trip_ticket_request',
-                'trip_ticket_approved',
-                'trip_ticket_rejected'
+                'vehicle_repair_request',
+                'vehicle_repair_approved',
+                'vehicle_repair_rejected'
             ])
             ->latest()
             ->paginate(10);
 
-        return view('pages.shared.manage-request-ticket', compact('requests'));
+        return view('pages.shared.vehicle-repair', compact('requests'));
     }
 }

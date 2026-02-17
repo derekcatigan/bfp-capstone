@@ -34,10 +34,6 @@
     <!-- Leaflet CSS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 
-    <!-- Leaflet JS -->
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-
-
     @yield('head')
 </head>
 
@@ -162,9 +158,12 @@
     </div>
 
 
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
     {{-- jQuery --}}
     <script src="{{ asset('assets/js/jquery-4.0.0.min.js') }}"></script>
-    @yield('scripts')
+    @stack('scripts')
 </body>
 
 </html>

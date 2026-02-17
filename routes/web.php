@@ -2,6 +2,7 @@
 
 use App\Enum\RoleEnum;
 use App\Http\Controllers\Admin\AccountController;
+use App\Http\Controllers\Admin\ActiveTripController;
 use App\Http\Controllers\Admin\AdminDashbaordController;
 use App\Http\Controllers\Admin\TicketController;
 use App\Http\Controllers\Auth\AuthController;
@@ -9,6 +10,7 @@ use App\Http\Controllers\Driver\DriverDashboardController;
 use App\Http\Controllers\Shared\NotificationController;
 use App\Http\Controllers\Shared\ProfileController;
 use App\Http\Controllers\Shared\RequestTicketController;
+use App\Http\Controllers\Shared\RequestVehicleController;
 use App\Http\Controllers\Shared\VehicleController;
 use App\Models\Notification;
 use Illuminate\Http\Request;
@@ -115,6 +117,59 @@ Route::middleware('auth')->group(function () {
 
             return back();
         })->name('ticket.request.reject');
+
+        // Approve vehicle repair
+        Route::post('/vehicle/request/{notification}/approve', function (Notification $notification) {
+
+            abort_unless($notification->type === 'vehicle_repair_request', 403);
+
+            $notification->update([
+                'status' => false,
+                'type' => 'vehicle_repair_approved',
+            ]);
+
+            Notification::create([
+                'user_id' => $notification->requester_id,
+                'type' => 'vehicle_repair_approved',
+                'title' => 'Vehicle Repair Approved',
+                'message' => 'Your vehicle repair request has been approved.',
+                'status' => true,
+            ]);
+
+            return back();
+        })->name('vehicle.request.approve');
+
+
+        // Reject vehicle repair
+        Route::post('/vehicle/request/{notification}/reject', function (Notification $notification) {
+
+            abort_unless($notification->type === 'vehicle_repair_request', 403);
+
+            $notification->update([
+                'status' => false,
+                'type' => 'vehicle_repair_rejected',
+            ]);
+
+            Notification::create([
+                'user_id' => $notification->requester_id,
+                'type' => 'vehicle_repair_rejected',
+                'title' => 'Vehicle Repair Rejected',
+                'message' => 'Your vehicle repair request has been rejected.',
+                'status' => true,
+            ]);
+
+            return back();
+        })->name('vehicle.request.reject');
+
+        // RequestTicketController
+        Route::controller(RequestTicketController::class)->group(function () {
+            Route::get('/ticket/manage-ticket', 'ticketIndex')->name('request.ticket.index');
+        });
+
+        // ActiveTripController
+        Route::controller(ActiveTripController::class)->group(function () {
+            Route::get('/trips', 'index')->name('trip.index');
+        });
     });
 
     // Driver Role Route Access
@@ -146,6 +201,13 @@ Route::middleware('auth')->group(function () {
             Route::get('/ticket/{ticket}/edit', 'edit')->name('ticket.edit');
             Route::put('/ticket/{ticket}/update', 'update')->name('ticket.update');
             Route::patch('/ticket/{ticket}/submit', 'submit')->name('ticket.submit');
+        });
+
+        // RequestVehicleController
+        Route::controller(RequestVehicleController::class)->group(function () {
+            Route::get('/vehicle/request-repair', 'index')->name('request.vehicle.index');
+            Route::post('/vehicle/request-repair/store', 'store')->name('request.vehicle.store');
+            Route::get('/vehicle/manage-repair', 'repairIndex')->name('manage.vehicle.index');
         });
     });
 
