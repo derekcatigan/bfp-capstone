@@ -1,12 +1,12 @@
-// public\assets\js\map\active-trips.js
 let map;
 let baseMarker;
+let driverMarker;
 let routeLine;
-
-const BASE_LOCATION =
-    "BFP Maasin City, Captain Iyano Street, Combado, Maasin City, Southern Leyte, Philippines";
+let pollTimer;
+let routeCoords = []; // Store route coordinates globally
 
 const BASE_COORDS = [10.132646794843092, 124.83489696799799];
+const POLL_INTERVAL = 10000;
 
 $(window).on("load", function () {
     setTimeout(() => {
@@ -16,7 +16,6 @@ $(window).on("load", function () {
 });
 
 /* ---------------- MAP INIT ---------------- */
-
 function initActiveTripsMap() {
     map = L.map("activeTripsMap").setView(BASE_COORDS, 15);
 
@@ -36,86 +35,143 @@ $(document).on("click", ".trip-card", function () {
     const destLon = parseFloat($(this).data("destination-lng"));
     const controlNo = $(this).data("control");
     const destinationName = $(this).data("destination-name");
+    const tripId = $(this).data("trip-id");
 
-    if (!destLat || !destLon)
-        return toastr.error("Destination coordinates not found");
+    if (!destLat || !destLon) return alert("Destination coordinates not found");
 
-    drawRoute([destLat, destLon], controlNo, destinationName);
+    drawRoute([destLat, destLon], controlNo, destinationName, tripId);
 });
-/* ---------------- GEOCODE ---------------- */
-
-function geocodeAddress(address) {
-    return $.get(
-        `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(
-            address,
-        )}`,
-    );
-}
-
-// HELPER FUNCTION
-function formatDuration(seconds) {
-    const minutes = Math.round(seconds / 60);
-
-    if (minutes < 60) return `${minutes} min`;
-
-    const hours = Math.floor(minutes / 60);
-    const remaining = minutes % 60;
-    return `${hours}h ${remaining}m`;
-}
-
-function formatDistance(meters) {
-    const km = meters / 1000;
-    return `${km.toFixed(2)} km`;
-}
 
 /* ---------------- DRAW ROUTE ---------------- */
-
-function drawRoute(destCoords, controlNo, destinationName) {
+function drawRoute(destCoords, controlNo, destinationName, tripId) {
     const [destLat, destLon] = destCoords;
 
-    // OSRM requires lng,lat order
     const osrmUrl = `https://router.project-osrm.org/route/v1/driving/${BASE_COORDS[1]},${BASE_COORDS[0]};${destLon},${destLat}?overview=full&geometries=geojson`;
 
     fetch(osrmUrl)
-        .then((response) => response.json())
-        .then((routeData) => {
-            if (!routeData.routes || !routeData.routes.length) {
-                toastr.error("No route found");
+        .then((res) => res.json())
+        .then((data) => {
+            if (!data.routes || !data.routes.length) {
+                alert("No route found");
                 return;
             }
 
-            const routeCoords = routeData.routes[0].geometry.coordinates;
-            const duration = routeData.routes[0].duration;
-            const distance = routeData.routes[0].distance;
+            // Save route coordinates globally
+            routeCoords = data.routes[0].geometry.coordinates.map((c) => [
+                c[1],
+                c[0],
+            ]);
 
-            // Convert [lng, lat] → [lat, lng] for Leaflet
-            const latLngs = routeCoords.map((coord) => [coord[1], coord[0]]);
-
-            // Display route info
             $("#routeInfo").show();
-            $("#infoDestination").text(destinationName);
-            $("#infoEta").text(formatDuration(duration));
-            $("#infoDistance").text(formatDistance(distance));
+            $("#infoEta").text(formatDuration(data.routes[0].duration));
+            $("#infoDistance").text(formatDistance(data.routes[0].distance));
 
-            // Remove previous route
             if (routeLine) map.removeLayer(routeLine);
 
-            // Draw polyline
-            routeLine = L.polyline(latLngs, { color: "red", weight: 5 }).addTo(
-                map,
-            );
+            // Draw route polyline
+            routeLine = L.polyline(routeCoords, {
+                color: "red",
+                weight: 5,
+            }).addTo(map);
 
-            // Add destination marker
+            // Destination marker
             L.marker([destLat, destLon])
                 .addTo(map)
                 .bindPopup(`<b>${controlNo}</b><br>${destinationName}`)
                 .openPopup();
 
-            // Fit map to route
             map.fitBounds(routeLine.getBounds(), { padding: [50, 50] });
-        })
-        .catch((err) => {
-            console.error(err);
-            toastr.error("Map routing failed");
+
+            // Driver marker at base
+            if (driverMarker) map.removeLayer(driverMarker);
+            driverMarker = L.marker(BASE_COORDS, { icon: driverIcon }).addTo(
+                map,
+            );
+
+            // Start polling for driver location
+            startPolling(tripId, driverMarker);
         });
 }
+
+/* ---------------- POLLING ---------------- */
+function startPolling(tripId, marker) {
+    if (pollTimer) clearInterval(pollTimer);
+
+    pollTimer = setInterval(() => {
+        $.get(`/admin/active-trip/${tripId}/location`, function (data) {
+            if (!data || !data.latitude || !data.longitude) return;
+
+            const currentLatLng = marker.getLatLng();
+            const newLatLng = [data.latitude, data.longitude];
+
+            // Find closest point on route to current marker
+            let nearestIndex = 0;
+            let minDist = Infinity;
+            routeCoords.forEach((c, i) => {
+                const dist = map.distance(currentLatLng, L.latLng(c));
+                if (dist < minDist) {
+                    minDist = dist;
+                    nearestIndex = i;
+                }
+            });
+
+            // Animate marker along remaining route to new GPS location
+            const remainingRoute = routeCoords.slice(nearestIndex);
+            animateMarkerSmooth(marker, remainingRoute, POLL_INTERVAL);
+        });
+    }, POLL_INTERVAL);
+}
+
+/* ---------------- ANIMATE MARKER ALONG ROUTE ---------------- */
+function animateMarkerSmooth(marker, route, duration) {
+    if (!marker || !route.length) return;
+
+    let stepIndex = 0;
+    const interval = 50;
+    const totalSteps = Math.max(Math.floor(duration / interval), 1);
+
+    let latLngs = [];
+    // Flatten the route into very small steps
+    for (let i = 0; i < route.length - 1; i++) {
+        const start = route[i];
+        const end = route[i + 1];
+
+        const dx = end[0] - start[0];
+        const dy = end[1] - start[1];
+
+        for (let s = 0; s < totalSteps / route.length; s++) {
+            const lat = start[0] + (dx * s) / (totalSteps / route.length);
+            const lng = start[1] + (dy * s) / (totalSteps / route.length);
+            latLngs.push([lat, lng]);
+        }
+    }
+
+    let currentStep = 0;
+    const animate = setInterval(() => {
+        if (currentStep >= latLngs.length) {
+            clearInterval(animate);
+            return;
+        }
+        marker.setLatLng(latLngs[currentStep]);
+        currentStep++;
+    }, interval);
+}
+
+/* ---------------- HELPERS ---------------- */
+function formatDuration(seconds) {
+    const minutes = Math.round(seconds / 60);
+    if (minutes < 60) return `${minutes} min`;
+    const hours = Math.floor(minutes / 60);
+    return `${hours}h ${minutes % 60}m`;
+}
+
+function formatDistance(meters) {
+    return `${(meters / 1000).toFixed(2)} km`;
+}
+
+/* ---------------- DRIVER ICON ---------------- */
+const driverIcon = L.icon({
+    iconUrl: "/assets/icons/truck.png",
+    iconSize: [32, 32],
+    iconAnchor: [16, 16],
+});

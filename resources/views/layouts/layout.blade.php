@@ -158,11 +158,13 @@
     </div>
 
 
+
     <!-- Leaflet JS -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
     {{-- jQuery --}}
     <script src="{{ asset('assets/js/jquery-4.0.0.min.js') }}"></script>
+
     @stack('scripts')
 </body>
 

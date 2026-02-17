@@ -4,6 +4,7 @@ use App\Enum\RoleEnum;
 use App\Http\Controllers\Admin\AccountController;
 use App\Http\Controllers\Admin\ActiveTripController;
 use App\Http\Controllers\Admin\AdminDashbaordController;
+use App\Http\Controllers\Admin\DriverLocationController;
 use App\Http\Controllers\Admin\TicketController;
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\Driver\DriverDashboardController;
@@ -169,7 +170,17 @@ Route::middleware('auth')->group(function () {
         // ActiveTripController
         Route::controller(ActiveTripController::class)->group(function () {
             Route::get('/trips', 'index')->name('trip.index');
+            Route::get('/admin/active-trip/{trip}/location', 'location')->name('active-trip.location');
         });
+
+        Route::post('/driver/{trip}/update-location', [DriverLocationController::class, 'updateLocation'])
+            ->name('driver.update-location');
+
+        // API endpoint to fetch a trip's current location
+
+
+        // API endpoint for driver app to update location
+
     });
 
     // Driver Role Route Access
