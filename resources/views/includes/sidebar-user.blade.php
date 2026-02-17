@@ -134,6 +134,32 @@
                         Request Vehicle
                     </a>
                 </li>
+                @php
+                    $activeTrip = \App\Models\TripTicket::where('driver_id', auth()->id())
+                        ->where('status', 'active')
+                        ->latest()
+                        ->first();
+                @endphp
+                <li>
+                    @if($activeTrip)
+                        <a href="{{ route('driver.location.index', ['trip' => $activeTrip->id]) }}"
+                            class="{{ Request::routeIs('driver.location.index') ? 'bg-gray-200 p-3 border-l-2 border-blue-500 rounded-l-sm' : 'p-3' }}">
+                            <svg class="h-[1em]" xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M3 13h8v8h2v-8h8v-2h-8V3h-2v8H3z"></path>
+                            </svg>
+                            Driver Location
+                        </a>
+                    @else
+                        <span class="p-3 opacity-50 cursor-not-allowed flex items-center gap-2">
+                            <svg class="h-[1em]" xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M3 13h8v8h2v-8h8v-2h-8V3h-2v8H3z"></path>
+                            </svg>
+                            Driver Location (No active trip)
+                        </span>
+                    @endif
+                </li>
             </ul>
         </details>
     </li>

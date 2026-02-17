@@ -172,15 +172,6 @@ Route::middleware('auth')->group(function () {
             Route::get('/trips', 'index')->name('trip.index');
             Route::get('/admin/active-trip/{trip}/location', 'location')->name('active-trip.location');
         });
-
-        Route::post('/driver/{trip}/update-location', [DriverLocationController::class, 'updateLocation'])
-            ->name('driver.update-location');
-
-        // API endpoint to fetch a trip's current location
-
-
-        // API endpoint for driver app to update location
-
     });
 
     // Driver Role Route Access
@@ -224,6 +215,12 @@ Route::middleware('auth')->group(function () {
             Route::post('/vehicle/request-repair/store', 'store')->name('request.vehicle.store');
             Route::get('/vehicle/manage-repair', 'repairIndex')->name('manage.vehicle.index');
         });
+
+        // DriverLocationController
+        Route::get('/driver/{trip}/location', [DriverLocationController::class, 'index'])
+            ->name('driver.location.index');
+        Route::post('/driver/{trip}/update-location', [DriverLocationController::class, 'updateLocation'])
+            ->name('driver.update-location');
     });
 
     // All Role Access

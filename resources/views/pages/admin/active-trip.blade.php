@@ -55,7 +55,8 @@
                     <div class="trip-card p-4 rounded-xl border border-gray-300 cursor-pointer transition-all duration-200 hover:shadow-md hover:border-green-500 active:scale-[0.98]"
                         data-trip-id="{{ $trip->id }}" data-destination-name="{{ $trip->place }}"
                         data-destination-lat="{{ $trip->latitude }}" data-destination-lng="{{ $trip->longitude }}"
-                        data-control="{{ $trip->control_no }}">
+                        data-current-lat="{{ $trip->latitude ?? 10.132646794843092 }}"
+                        data-current-lng="{{ $trip->longitude ?? 124.83489696799799 }}" data-control="{{ $trip->control_no }}">
 
                         <div class="flex justify-between items-center">
                             <h3 class="font-bold text-sm">{{ $trip->control_no }}</h3>
@@ -63,17 +64,9 @@
                         </div>
 
                         <div class="mt-2 text-sm space-y-1">
-                            <p class="flex items-center gap-2">
-                                {{ $trip->driver?->profile?->first_name }} {{ $trip->driver?->profile?->last_name }}
-                            </p>
-
-                            <p class="flex items-center gap-2">
-                                {{ $trip->vehicle?->plate_number }}
-                            </p>
-
-                            <p class="flex items-center gap-2 text-xs">
-                                {{ Str::limit($trip->place, 60) }}
-                            </p>
+                            <p>{{ $trip->driver?->profile?->first_name }} {{ $trip->driver?->profile?->last_name }}</p>
+                            <p>{{ $trip->vehicle?->plate_number }}</p>
+                            <p class="text-xs">{{ Str::limit($trip->place, 60) }}</p>
                         </div>
                     </div>
                 @empty
@@ -81,7 +74,6 @@
                         No active trips right now
                     </div>
                 @endforelse
-
             </div>
         </div>
     </div>
