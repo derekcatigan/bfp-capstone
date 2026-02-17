@@ -62,4 +62,9 @@ class TripTicket extends Model
     {
         return $this->belongsTo(Vehicle::class, 'vehicle_id');
     }
+
+    public function tracking()
+    {
+        return $this->hasOne(TripTracking::class, 'trip_id');
+    }
 }

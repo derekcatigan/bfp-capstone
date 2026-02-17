@@ -130,7 +130,7 @@ Route::middleware('auth')->group(function () {
             ]);
 
             Notification::create([
-                'user_id' => $notification->requester_id,
+                'user_id' => Auth::id(),
                 'type' => 'vehicle_repair_approved',
                 'title' => 'Vehicle Repair Approved',
                 'message' => 'Your vehicle repair request has been approved.',
@@ -190,6 +190,14 @@ Route::middleware('auth')->group(function () {
 
     // Admin and Driver Role Access
     Route::middleware(['role:admin,driver'])->group(function () {
+
+        // RequestVehicleController
+        Route::controller(RequestVehicleController::class)->group(function () {
+            Route::get('/vehicle/request-repair', 'index')->name('request.vehicle.index');
+            Route::post('/vehicle/request-repair/store', 'store')->name('request.vehicle.store');
+            Route::get('/vehicle/manage-repair', 'repairIndex')->name('manage.vehicle.index');
+        });
+
         // VehicleController
         Route::controller(VehicleController::class)->group(function () {
             Route::get('/vehicle/manage-vehicle', 'index')->name('vehicle.index');
@@ -209,16 +217,11 @@ Route::middleware('auth')->group(function () {
             Route::patch('/ticket/{ticket}/submit', 'submit')->name('ticket.submit');
         });
 
-        // RequestVehicleController
-        Route::controller(RequestVehicleController::class)->group(function () {
-            Route::get('/vehicle/request-repair', 'index')->name('request.vehicle.index');
-            Route::post('/vehicle/request-repair/store', 'store')->name('request.vehicle.store');
-            Route::get('/vehicle/manage-repair', 'repairIndex')->name('manage.vehicle.index');
-        });
-
         // DriverLocationController
         Route::get('/driver/{trip}/location', [DriverLocationController::class, 'index'])
             ->name('driver.location.index');
+        Route::post('/driver/{trip}/toggle-tracking', [DriverLocationController::class, 'toggleTracking'])
+            ->name('driver.toggle-tracking');
         Route::post('/driver/{trip}/update-location', [DriverLocationController::class, 'updateLocation'])
             ->name('driver.update-location');
     });
