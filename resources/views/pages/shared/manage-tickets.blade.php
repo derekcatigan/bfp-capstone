@@ -156,7 +156,7 @@
                                 {{ \Carbon\Carbon::parse($ticket->ticket_date)->format('M d, Y') }}
                             </p>
                         </div>
-                        <span>{{ Str::title($ticket->status) }} </span>
+                        <span class="badge badge-outline">{{ Str::title($ticket->status) }} </span>
                     </div>
                     <div class="divider my-1"></div>
                     <p>

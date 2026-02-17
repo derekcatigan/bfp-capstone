@@ -190,8 +190,12 @@ Route::middleware('auth')->group(function () {
     Route::middleware(['role:admin,driver'])->group(function () {
         // VehicleController
         Route::controller(VehicleController::class)->group(function () {
+            Route::get('/vehicle/manage-vehicle', 'index')->name('vehicle.index');
             Route::get('/vehicle/register', 'create')->name('vehicle.create');
             Route::post('/vehicle/store', 'store')->name('vehicle.store');
+            Route::get('/vehicle/{vehicle}', 'show')->name('vehicle.show');
+            Route::get('vehicle/{vehicle}/edit', 'edit')->name('vehicle.edit');
+            Route::put('/vehicle/{vehicle}/update', 'update')->name('vehicle.update');
         });
 
         // TicketController

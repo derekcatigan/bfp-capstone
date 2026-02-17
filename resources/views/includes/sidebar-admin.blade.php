@@ -158,8 +158,8 @@
             </summary>
             <ul>
                 <li>
-                    <a href="#"
-                        class="{{ Request::routeIs() ? 'bg-gray-200 p-3 border-l-2 border-blue-500 rounded-l-sm' : 'p-3' }}">
+                    <a href="{{ route('vehicle.index') }}"
+                        class="{{ Request::routeIs('vehicle.index') ? 'bg-gray-200 p-3 border-l-2 border-blue-500 rounded-l-sm' : 'p-3' }}">
                         <svg class="h-[1em]" xmlns="http://www.w3.org/2000/svg" width="24" height="24"
                             fill="currentColor" viewBox="0 0 24 24">
                             <!--Boxicons v3.0.8 https://boxicons.com | License  https://docs.boxicons.com/free-->
@@ -168,7 +168,7 @@
                             </path>
                             <path d="M8 11h8v2H8zm0 4h8v2H8zm0-8h3v2H8z"></path>
                         </svg>
-                        Manage Vehicles
+                        Vehicle Logs
                     </a>
                 </li>
                 <li>
