@@ -55,12 +55,12 @@
 
                             <div>
                                 <h2 class="text-xl font-semibold">
-                                    {{ $note->requester?->profile?->first_name ?? 'Unknown' }}
-                                    {{ $note->requester?->profile?->last_name }}
+                                    {{ $note->requester?->profile?->first_name ?? '' }}
+                                    {{ $note->requester?->profile?->last_name ?? ''}}
                                 </h2>
 
                                 <p class="text-xs opacity-60">
-                                    Submitted {{ $note->created_at->diffForHumans() }}
+                                    Submitted {{ $note->created_at->diffForHumans()}}
                                 </p>
                             </div>
 

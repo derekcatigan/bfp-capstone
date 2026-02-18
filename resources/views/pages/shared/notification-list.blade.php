@@ -12,7 +12,7 @@
 
                 <div
                     class="bg-white border border-gray-200 rounded-xl shadow-sm p-5 
-                                                                                {{ $note->status ? 'border-l-4 border-blue-500 bg-blue-50' : '' }}">
+                                                                                        {{ $note->status ? 'border-l-4 border-blue-500 bg-blue-50' : '' }}">
 
                     <div class="flex justify-between items-start gap-4">
 

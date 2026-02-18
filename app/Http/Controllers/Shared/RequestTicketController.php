@@ -52,10 +52,9 @@ class RequestTicketController extends Controller
     public function ticketIndex()
     {
         $requests = Notification::with(['requester.profile'])
+            ->where('user_id', Auth::id())
             ->whereIn('type', [
                 'trip_ticket_request',
-                'trip_ticket_approved',
-                'trip_ticket_rejected'
             ])
             ->latest()
             ->paginate(10);

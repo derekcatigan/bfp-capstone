@@ -124,13 +124,15 @@ Route::middleware('auth')->group(function () {
 
             abort_unless($notification->type === 'vehicle_repair_request', 403);
 
+            // Mark admin notification as processed
             $notification->update([
                 'status' => false,
                 'type' => 'vehicle_repair_approved',
             ]);
 
+            // Notify DRIVER
             Notification::create([
-                'user_id' => Auth::id(),
+                'user_id' => $notification->requester_id,
                 'type' => 'vehicle_repair_approved',
                 'title' => 'Vehicle Repair Approved',
                 'message' => 'Your vehicle repair request has been approved.',
@@ -139,7 +141,6 @@ Route::middleware('auth')->group(function () {
 
             return back();
         })->name('vehicle.request.approve');
-
 
         // Reject vehicle repair
         Route::post('/vehicle/request/{notification}/reject', function (Notification $notification) {
@@ -166,12 +167,6 @@ Route::middleware('auth')->group(function () {
         Route::controller(RequestTicketController::class)->group(function () {
             Route::get('/ticket/manage-ticket', 'ticketIndex')->name('request.ticket.index');
         });
-
-        // ActiveTripController
-        Route::controller(ActiveTripController::class)->group(function () {
-            Route::get('/trips', 'index')->name('trip.index');
-            Route::get('/admin/active-trip/{trip}/location', 'location')->name('active-trip.location');
-        });
     });
 
     // Driver Role Route Access
@@ -186,15 +181,25 @@ Route::middleware('auth')->group(function () {
             Route::get('/ticket/request-ticket', 'index')->name('ticket.request.index');
             Route::post('/ticket/request-trip', 'store')->name('ticket.request.store');
         });
-    });
-
-    // Admin and Driver Role Access
-    Route::middleware(['role:admin,driver'])->group(function () {
 
         // RequestVehicleController
         Route::controller(RequestVehicleController::class)->group(function () {
             Route::get('/vehicle/request-repair', 'index')->name('request.vehicle.index');
             Route::post('/vehicle/request-repair/store', 'store')->name('request.vehicle.store');
+            Route::get('/vehicles/available', 'availableVehicles')->name('vehicles.available');
+        });
+    });
+
+    // Admin and Driver Role Access
+    Route::middleware(['role:admin,driver'])->group(function () {
+        // ActiveTripController
+        Route::controller(ActiveTripController::class)->group(function () {
+            Route::get('/trips', 'index')->name('trip.index');
+            Route::get('/admin/active-trip/{trip}/location', 'location')->name('active-trip.location');
+        });
+
+        // RequestVehicleController
+        Route::controller(RequestVehicleController::class)->group(function () {
             Route::get('/vehicle/manage-repair', 'repairIndex')->name('manage.vehicle.index');
         });
 

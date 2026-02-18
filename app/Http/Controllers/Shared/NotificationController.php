@@ -13,7 +13,7 @@ class NotificationController extends Controller
         $notifications = Auth::user()
             ->inbox()
             ->latest()
-            ->paginate(15); // page friendly
+            ->paginate(15);
 
         return view('pages.shared.notification-list', compact('notifications'));
     }

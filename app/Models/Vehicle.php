@@ -46,4 +46,9 @@ class Vehicle extends Model
     {
         return $this->status === 'Available';
     }
+
+    public function tripTickets()
+    {
+        return $this->hasMany(TripTicket::class, 'vehicle_id');
+    }
 }
