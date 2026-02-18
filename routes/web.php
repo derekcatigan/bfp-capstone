@@ -6,8 +6,10 @@ use App\Http\Controllers\Admin\ActiveTripController;
 use App\Http\Controllers\Admin\AdminDashbaordController;
 use App\Http\Controllers\Admin\DriverLocationController;
 use App\Http\Controllers\Admin\TicketController;
+use App\Http\Controllers\Analytics\VehicleExpenseAnalyticsController;
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\Driver\DriverDashboardController;
+use App\Http\Controllers\Shared\ManageRepairController;
 use App\Http\Controllers\Shared\NotificationController;
 use App\Http\Controllers\Shared\ProfileController;
 use App\Http\Controllers\Shared\RequestTicketController;
@@ -54,6 +56,7 @@ Route::middleware('auth')->group(function () {
         // AdminDashboardController 
         Route::controller(AdminDashbaordController::class)->group(function () {
             Route::get('/admin/dashboard', 'index')->name('admin.dashboard');
+            Route::get('/admin/dashboard/chart', 'chartData')->name('admin.dashboard.chart');
         });
 
         // AccountController
@@ -229,6 +232,17 @@ Route::middleware('auth')->group(function () {
             ->name('driver.toggle-tracking');
         Route::post('/driver/{trip}/update-location', [DriverLocationController::class, 'updateLocation'])
             ->name('driver.update-location');
+
+        // ManageRepairController
+        Route::controller(ManageRepairController::class)->group(function () {
+            Route::get('/repair/vehicle', 'index')->name('manage.repair.vehicle');
+            Route::post('/repair/vehicle/store', 'store')->name('manage.repair.store');
+        });
+
+        // VehicleExpenseAnalyticsController
+        Route::controller(VehicleExpenseAnalyticsController::class)->group(function () {
+            Route::get('/vehicle-analytics', 'index')->name('analytics.vehicle.index');
+        });
     });
 
     // All Role Access
