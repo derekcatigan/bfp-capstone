@@ -81,12 +81,6 @@
                         </svg>
                         Login
                     </button>
-
-                    <div class="divider">Or</div>
-
-                    <div class="w-full text-center mt-3">
-                        <a href="#" class="btn btn-sm btn-warning">Sign up</a>
-                    </div>
                 </div>
             </form>
         </div>

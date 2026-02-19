@@ -351,46 +351,72 @@ class TicketController extends Controller
 
             $vehicle = $ticket->vehicle;
 
-            // Calculate new fuel level
+            /** ------------------------------------------------
+             *  COMPUTE NEW FUEL LEVEL
+             * ------------------------------------------------*/
             $newFuelLevel =
                 ($validated['balance_tank'] ?? 0)
                 + ($validated['issued_stock'] ?? 0)
                 + ($validated['purchased_trip'] ?? 0)
                 - ($validated['deduct_trip'] ?? 0);
 
-            // Prevent new fuel level from exceeding vehicle capacity
             if ($vehicle->fuel_tank_capacity !== null && $newFuelLevel > $vehicle->fuel_tank_capacity) {
-                throw new Exception("Cannot update trip: calculated fuel level ({$newFuelLevel}L) exceeds vehicle tank capacity ({$vehicle->fuel_tank_capacity}L).");
+                throw new Exception("Fuel exceeds tank capacity.");
             }
 
-            // Update ticket
-            $ticket->update($validated);
+            /** ------------------------------------------------
+             * HANDLE STORAGE DIFFERENCE (THE FIX)
+             * ------------------------------------------------*/
+            $oldIssued = $ticket->issued_stock ?? 0;
+            $newIssued = $validated['issued_stock'] ?? 0;
 
-            // Update vehicle fuel level
-            $ticket->vehicle->update([
-                'current_fuel_level' => $newFuelLevel
-            ]);
+            $difference = $newIssued - $oldIssued;
 
-            // Deduct issued_stock from FuelStorage
-            $issuedStock = $validated['issued_stock'] ?? 0;
+            if ($difference != 0) {
 
-            if ($issuedStock > 0) {
                 $latestBalance = FuelStorage::latest('transaction_datetime')->value('running_balance') ?? 0;
 
-                // Prevent deduction if balance is insufficient
-                if ($issuedStock > $latestBalance) {
-                    throw new Exception("Cannot issue {$issuedStock}L: only {$latestBalance}L available in storage.");
+                // If additional deduction
+                if ($difference > 0) {
+
+                    if ($difference > $latestBalance) {
+                        throw new Exception("Not enough fuel in storage. Available: {$latestBalance}L");
+                    }
+
+                    $newBalance = $latestBalance - $difference;
+                    $type = 'removed';
+                    $note = "Adjustment: additional issued for ticket {$ticket->control_no}";
+                }
+                // If returned fuel
+                else {
+
+                    $difference = abs($difference);
+                    $newBalance = $latestBalance + $difference;
+                    $type = 'added';
+                    $note = "Adjustment: returned fuel for ticket {$ticket->control_no}";
                 }
 
                 FuelStorage::create([
-                    'transaction_datetime' => Carbon::now(),
+                    'transaction_datetime' => now(),
                     'container_type' => 'Main Tank',
-                    'transaction_type' => 'removed',
-                    'amount' => $issuedStock,
-                    'running_balance' => max($latestBalance - $issuedStock, 0),
-                    'note' => "Issued for trip ticket: {$ticket->control_no}"
+                    'transaction_type' => $type,
+                    'amount' => $difference,
+                    'running_balance' => $newBalance,
+                    'note' => $note
                 ]);
             }
+
+            /** ------------------------------------------------
+             * UPDATE TICKET
+             * ------------------------------------------------*/
+            $ticket->update($validated);
+
+            /** ------------------------------------------------
+             * UPDATE VEHICLE TANK LEVEL
+             * ------------------------------------------------*/
+            $vehicle->update([
+                'current_fuel_level' => $newFuelLevel
+            ]);
         });
 
         return response()->json([
@@ -398,6 +424,7 @@ class TicketController extends Controller
             'message' => 'Trip Ticket Updated Successfully!'
         ]);
     }
+
 
     public function submit(TripTicket $ticket)
     {

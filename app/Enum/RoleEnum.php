@@ -5,14 +5,14 @@ namespace App\Enum;
 enum RoleEnum: string
 {
     case AdminRole = 'admin';
-    case UserRole = 'user';
+        // case UserRole = 'user';
     case DriverRole = 'driver';
 
     public function label(): string
     {
         return match ($this) {
             self::AdminRole => 'Admin',
-            self::UserRole => 'User',
+            // self::UserRole => 'User',
             self::DriverRole => 'Driver',
         };
     }
@@ -21,7 +21,7 @@ enum RoleEnum: string
     {
         return match ($this) {
             self::AdminRole => 'Administrator',
-            self::UserRole => 'User',
+            // self::UserRole => 'User',
             self::DriverRole => 'Driver',
         };
     }
