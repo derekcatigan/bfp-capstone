@@ -26,6 +26,44 @@ function formatTime12Hour(time) {
     return `${hour}:${minute} ${ampm}`;
 }
 
+let deleteUrl = null;
+
+// OPEN MODAL
+$(document).on("click", ".btn-delete-ticket", function () {
+    deleteUrl = $(this).data("url");
+
+    $("#deleteTicketControl").text($(this).data("control"));
+
+    document.getElementById("deleteTicketModal").showModal();
+});
+
+// CONFIRM DELETE
+$("#confirmDeleteTicket").on("click", function () {
+    if (!deleteUrl) return;
+
+    $.ajax({
+        url: deleteUrl,
+        type: "DELETE",
+        headers: {
+            "X-CSRF-TOKEN": $('meta[name="csrf-token"]').attr("content"),
+            Accept: "application/json",
+        },
+
+        success: function (response) {
+            toastr.success(response.message);
+            setTimeout(function () {
+                location.reload();
+            }, 3000);
+        },
+
+        error: function (xhr) {
+            let msg = xhr.responseJSON?.message ?? "Delete failed";
+            toastr.error(msg);
+        },
+    });
+});
+
+// VIEW DETAILS
 $(document).on("click", ".btn-view-ticket", function () {
     let id = $(this).data("id");
 
@@ -68,6 +106,7 @@ $(document).on("click", ".btn-view-ticket", function () {
         $("#preview_issued_stock").text(ticket.issued_stock);
         $("#preview_purchased_trip").text(ticket.purchased_trip);
         $("#preview_deduct_trip").text(ticket.deduct_trip);
+        $("#preview_end_balance").text(ticket.vehicle?.current_fuel_level ?? 0);
         $("#preview_gear_oil").text(ticket.gear_oil_issued);
         $("#preview_lub_oil").text(ticket.lub_oil_issued);
         $("#preview_grease_issued").text(ticket.grease_issued);

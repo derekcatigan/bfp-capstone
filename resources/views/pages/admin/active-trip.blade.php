@@ -31,7 +31,7 @@
             </div>
 
             {{-- Map --}}
-            <div id="activeTripsMap" class="w-full flex-1 min-h-75 lg:min-h-0"></div>
+            <div id="activeTripsMap" class="w-full flex-1 min-h-75 lg:min-h-0 z-0"></div>
 
         </div>
 

@@ -17,6 +17,16 @@ $("#ticketForm input, #ticketForm textarea, #ticketForm select").on(
     },
 );
 
+// Auto fill balance tank based on selected vehicle
+$("#vehicle_id").on("change", function () {
+    let selected = $(this).find("option:selected");
+    let fuelLevel = selected.data("fuel");
+
+    if (fuelLevel !== undefined) {
+        $("#balance_tank").val(fuelLevel).trigger("input");
+    }
+});
+
 // Ticket Form
 $("#ticketForm").on("submit", function (e) {
     e.preventDefault();

@@ -145,7 +145,7 @@
         {{-- Sidebar Section --}}
         <div class="drawer-side">
             <label for="sidebar-toggle" aria-label="close sidebar" class="drawer-overlay"></label>
-            <ul class="menu space-y-2 bg-white border-r border-gray-300 min-h-full w-80 p-4">
+            <ul class="menu space-y-2 bg-white border-r border-gray-300 min-h-full w-80 p-4 ">
                 <!-- Sidebar content here -->
 
                 {{-- Sidebar links for admin --}}

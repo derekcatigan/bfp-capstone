@@ -166,17 +166,17 @@
                     </p>
                     <p><strong>Destination:</strong> {{ $ticket->place }}</p>
                     <p><strong>Purpose:</strong> {{ $ticket->purpose }}</p>
+
+
                     <div class="card-actions justify-end mt-2">
-                        {{-- DRIVER SUBMIT --}}
-                        @if($role === \App\Enum\RoleEnum::DriverRole && $ticket->status === 'active')
+                        @if($ticket->status === 'active')
                             <button class="btn btn-sm btn-success btn-submit-ticket" data-id="{{ $ticket->id }}"
                                 data-url="{{ route('ticket.submit', $ticket->id) }}">
                                 Submit
                             </button>
                         @endif
 
-                        {{-- ADMIN ACTIVATE --}}
-                        @if($role === \App\Enum\RoleEnum::AdminRole && $ticket->status === 'pending')
+                        @if($ticket->status === 'pending')
                             <button class="btn btn-sm btn-success btn-activate-ticket" data-id="{{ $ticket->id }}"
                                 data-url="{{ route('ticket.activate', $ticket->id) }}">
                                 Activate
@@ -189,6 +189,15 @@
                         <button class="btn btn-sm btn-primary btn-view-ticket" data-id="{{ $ticket->id }}">
                             View Details
                         </button>
+
+                        {{-- ADMIN DELETE --}}
+                        @if($role === \App\Enum\RoleEnum::AdminRole)
+                            <button class="btn btn-sm btn-error btn-delete-ticket" data-id="{{ $ticket->id }}"
+                                data-control="{{ $ticket->control_no }}" data-url="{{ route('ticket.destroy', $ticket->id) }}">
+                                Remove
+                            </button>
+                        @endif
+
                     </div>
                 </div>
             </div>
@@ -244,6 +253,29 @@
             <div class="modal-action">
                 <button class="btn" onclick="confirmModal.close()">Cancel</button>
                 <button class="btn btn-primary" id="confirmYes">Yes</button>
+            </div>
+        </div>
+    </dialog>
+
+    {{-- DELETE MODAL --}}
+    <dialog id="deleteTicketModal" class="modal">
+        <div class="modal-box">
+            <h3 class="font-bold text-lg text-error">Delete Trip Ticket</h3>
+
+            <p class="py-4">
+                Are you sure you want to delete
+                <strong id="deleteTicketControl"></strong> ?
+                <br>
+                <span class="text-sm text-gray-500">
+                    This action cannot be undone.
+                </span>
+            </p>
+
+            <div class="modal-action">
+                <button class="btn" onclick="deleteTicketModal.close()">Cancel</button>
+                <button class="btn btn-error" id="confirmDeleteTicket">
+                    Yes, Delete
+                </button>
             </div>
         </div>
     </dialog>

@@ -85,8 +85,8 @@
                         <div class="grid grid-cols-1 lg:grid-cols-2 gap-1">
                             <fieldset class="fieldset">
                                 <legend class="fieldset-legend">Time Departed (Garage):</legend>
-                                <input type="time" name="time_departed" id="time_departed" class="input w-full"
-                                    value="{{ old('time_departed', $ticket->time_departed_garage) }}">
+                                <input type="time" name="time_departed_garage" id="time_departed_garage" class="input w-full"
+                                    value="{{ old('time_departed_garage', $ticket->time_departed_garage) }}">
                             </fieldset>
 
                             <fieldset class="fieldset">
@@ -112,8 +112,8 @@
 
                         <fieldset class="fieldset">
                             <legend class="fieldset-legend">Approx. Distance (kms):</legend>
-                            <input type="text" name="distance" id="distance" class="input w-full"
-                                value="{{ old('distance', $ticket->approx_distance) }}">
+                            <input type="text" name="approx_distance" id="distance" class="input w-full"
+                                value="{{ old('approx_distance', $ticket->approx_distance) }}">
                         </fieldset>
 
                         <fieldset class="fieldset">
@@ -145,14 +145,14 @@
                         <div class="grid grid-cols-1 lg:grid-cols-2 gap-1">
                             <fieldset class="fieldset">
                                 <legend class="fieldset-legend">Gear Oil Issued:</legend>
-                                <input type="text" name="gear_oil" id="gear_oil" class="input w-full"
-                                    value="{{ old('gear_oil', $ticket->gear_oil_issued) }}">
+                                <input type="text" name="gear_oil_issued" id="gear_oil" class="input w-full"
+                                    value="{{ old('gear_oil_issued', $ticket->gear_oil_issued) }}">
                             </fieldset>
 
                             <fieldset class="fieldset">
                                 <legend class="fieldset-legend">Lub. Oil Issued:</legend>
-                                <input type="text" name="lub_oil" id="lub_oil" class="input w-full"
-                                    value="{{ old('lub_oil', $ticket->lub_oil_issued) }}">
+                                <input type="text" name="lub_oil_issued" id="lub_oil" class="input w-full"
+                                    value="{{ old('lub_oil_issued', $ticket->lub_oil_issued) }}">
                             </fieldset>
 
                             <fieldset class="fieldset col-span-2">
@@ -231,7 +231,6 @@
                     </div>
                 </form>
             </div>
-
 
             {{-- Map Modal --}}
             <dialog id="mapModal" class="modal">

@@ -7,7 +7,6 @@
 
 @section('content')
 
-
     <div class="h-full flex flex-wrap items-stretch gap-1 p-3">
 
         {{-- Form Section --}}
@@ -51,9 +50,10 @@
                             <option disabled selected>Select Plate No</option>
 
                             @foreach ($vehicles as $vehicle)
-                                <option value="{{ $vehicle->id }}" data-status="{{ $vehicle->status }}">
+                                <<option value="{{ $vehicle->id }}" data-status="{{ $vehicle->status }}"
+                                    data-fuel="{{ $vehicle->current_fuel_level }}">
                                     {{ $vehicle->plate_number }}
-                                </option>
+                                    </option>
                             @endforeach
 
                         </select>
@@ -83,11 +83,11 @@
                 </div>
 
                 {{-- Section B --}}
-                <div class="p-3 bg-gray-800 rounded border-l-4 border-blue-500 mb-3">
+                <div class="hidden p-3 bg-gray-800 rounded border-l-4 border-blue-500 mb-3">
                     <h2 class="font-bold text-md text-neutral-300">B. DRIVER SECTION</h2>
                 </div>
 
-                <div class="space-y-1 mb-3">
+                <div class="hidden space-y-1 mb-3">
                     <div class="grid grid-cols-1 lg:grid-cols-2 gap-1">
                         <fieldset class="fieldset">
                             <legend class="fieldset-legend">Time Departed (Garage):</legend>
@@ -185,50 +185,52 @@
                 </div>
 
                 {{-- Section C --}}
-                <div class="p-3 bg-gray-800 rounded border-l-4 border-blue-500 mb-3">
+                <div class="hidden p-3 bg-gray-800 rounded border-l-4 border-blue-500 mb-3">
                     <h2 class="font-bold text-md text-neutral-300">C. PASSENGER CERTIFICATION SECTION</h2>
                 </div>
 
-                <div class="grid grid-cols-1 lg:grid-cols-2 gap-1">
-                    <fieldset class="fieldset">
-                        <legend class="fieldset-legend">Name:</legend>
-                        <input type="text" name="passenger_name1" id="passenger_name1" class="input w-full"
-                            placeholder="Name">
-                    </fieldset>
+                <div class="hidden">
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-1">
+                        <fieldset class="fieldset">
+                            <legend class="fieldset-legend">Name:</legend>
+                            <input type="text" name="passenger_name1" id="passenger_name1" class="input w-full"
+                                placeholder="Name">
+                        </fieldset>
 
-                    <fieldset class="fieldset">
-                        <legend class="fieldset-legend">Date:</legend>
-                        <input type="date" name="passenger_date1" id="passenger_date1" class="input w-full"
-                            placeholder="Speedometer at End of Trip">
-                    </fieldset>
-                </div>
+                        <fieldset class="fieldset">
+                            <legend class="fieldset-legend">Date:</legend>
+                            <input type="date" name="passenger_date1" id="passenger_date1" class="input w-full"
+                                placeholder="Speedometer at End of Trip">
+                        </fieldset>
+                    </div>
 
-                <div class="grid grid-cols-1 lg:grid-cols-2 gap-1">
-                    <fieldset class="fieldset">
-                        <legend class="fieldset-legend">Name:</legend>
-                        <input type="text" name="passenger_name2" id="passenger_name2" class="input w-full"
-                            placeholder="Name">
-                    </fieldset>
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-1">
+                        <fieldset class="fieldset">
+                            <legend class="fieldset-legend">Name:</legend>
+                            <input type="text" name="passenger_name2" id="passenger_name2" class="input w-full"
+                                placeholder="Name">
+                        </fieldset>
 
-                    <fieldset class="fieldset">
-                        <legend class="fieldset-legend">Date:</legend>
-                        <input type="date" name="passenger_date2" id="passenger_date2" class="input w-full"
-                            placeholder="Speedometer at End of Trip">
-                    </fieldset>
-                </div>
+                        <fieldset class="fieldset">
+                            <legend class="fieldset-legend">Date:</legend>
+                            <input type="date" name="passenger_date2" id="passenger_date2" class="input w-full"
+                                placeholder="Speedometer at End of Trip">
+                        </fieldset>
+                    </div>
 
-                <div class="grid grid-cols-1 lg:grid-cols-2 gap-1">
-                    <fieldset class="fieldset">
-                        <legend class="fieldset-legend">Name:</legend>
-                        <input type="text" name="passenger_name3" id="passenger_name3" class="input w-full"
-                            placeholder="Name">
-                    </fieldset>
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-1">
+                        <fieldset class="fieldset">
+                            <legend class="fieldset-legend">Name:</legend>
+                            <input type="text" name="passenger_name3" id="passenger_name3" class="input w-full"
+                                placeholder="Name">
+                        </fieldset>
 
-                    <fieldset class="fieldset">
-                        <legend class="fieldset-legend">Date:</legend>
-                        <input type="date" name="passenger_date3" id="passenger_date3" class="input w-full"
-                            placeholder="Speedometer at End of Trip">
-                    </fieldset>
+                        <fieldset class="fieldset">
+                            <legend class="fieldset-legend">Date:</legend>
+                            <input type="date" name="passenger_date3" id="passenger_date3" class="input w-full"
+                                placeholder="Speedometer at End of Trip">
+                        </fieldset>
+                    </div>
                 </div>
 
                 <div class="mt-3">

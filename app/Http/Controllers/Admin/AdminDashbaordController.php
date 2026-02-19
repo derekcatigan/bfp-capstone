@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Enum\RoleEnum;
 use App\Http\Controllers\Controller;
+use App\Models\FuelStorage;
 use App\Models\TripTicket;
 use App\Models\User;
 use App\Models\Vehicle;
@@ -24,7 +25,7 @@ class AdminDashbaordController extends Controller
             'availableVehicles' => Vehicle::where('status', 'Available')->count(),
             'repairVehicles' => Vehicle::where('status', 'In Repair')->count(),
             'pendingTrips' => TripTicket::where('status', 'pending')->count(),
-            'activeTrips' => TripTicket::where('status', 'ongoing')->count(),
+            'activeTrips' => TripTicket::where('status', 'active')->count(),
         ];
 
         $month = $request->query('month');
@@ -52,6 +53,39 @@ class AdminDashbaordController extends Controller
         $chartLabels = $expenseData->keys();
         $chartValues = $expenseData->values();
 
+        // Fuel Summary
+        $fuelSummary = FuelStorage::selectRaw("transaction_type, SUM(amount) as total")
+            ->groupBy('transaction_type')
+            ->pluck('total', 'transaction_type');
+
+        $fuelTypeLabels = ['Added', 'Removed'];
+        $fuelTypeValues = [
+            $fuelSummary['added'] ?? 0,
+            $fuelSummary['removed'] ?? 0,
+        ];
+
+        // Monthly Fuel Movement
+        $fuelMonthly = FuelStorage::selectRaw("
+        MONTH(transaction_datetime) as month,
+        SUM(CASE WHEN transaction_type = 'added' THEN amount ELSE 0 END) as added,
+        SUM(CASE WHEN transaction_type = 'removed' THEN amount ELSE 0 END) as removed
+    ")
+            ->groupBy('month')
+            ->get()
+            ->keyBy('month');
+
+        $fuelLineLabels = [];
+        $fuelAddedValues = [];
+        $fuelRemovedValues = [];
+
+        for ($i = 1; $i <= 12; $i++) {
+            $fuelLineLabels[] = Carbon::create(null, $i)->format('M');
+            $fuelAddedValues[] = $fuelMonthly[$i]->added ?? 0;
+            $fuelRemovedValues[] = $fuelMonthly[$i]->removed ?? 0;
+        }
+
+
+
         return view('pages.admin.admin-dashbaord', compact(
             'user',
             'stats',
@@ -60,7 +94,12 @@ class AdminDashbaordController extends Controller
             'lineLabels',
             'lineValues',
             'month',
-            'year'
+            'year',
+            'fuelTypeLabels',
+            'fuelTypeValues',
+            'fuelLineLabels',
+            'fuelAddedValues',
+            'fuelRemovedValues',
         ));
     }
 
@@ -78,6 +117,48 @@ class AdminDashbaordController extends Controller
             ->groupBy('month')
             ->pluck('total', 'month');
 
+        $fuelSummaryQuery = FuelStorage::query();
+
+        if ($month) $fuelSummaryQuery->whereMonth('transaction_datetime', $month);
+        if ($year) $fuelSummaryQuery->whereYear('transaction_datetime', $year);
+
+        $fuelSummary = $fuelSummaryQuery
+            ->selectRaw("transaction_type, SUM(amount) as total")
+            ->groupBy('transaction_type')
+            ->pluck('total', 'transaction_type');
+
+        $fuelTypeValues = [
+            $fuelSummary['added'] ?? 0,
+            $fuelSummary['removed'] ?? 0,
+        ];
+
+        $fuelMonthlyQuery = FuelStorage::query();
+
+        if ($month) $fuelMonthlyQuery->whereMonth('transaction_datetime', $month);
+        if ($year) $fuelMonthlyQuery->whereYear('transaction_datetime', $year);
+
+        $fuelMonthly = $fuelMonthlyQuery
+            ->selectRaw("
+        MONTH(transaction_datetime) as month,
+        SUM(CASE WHEN transaction_type = 'added' THEN amount ELSE 0 END) as added,
+        SUM(CASE WHEN transaction_type = 'removed' THEN amount ELSE 0 END) as removed
+    ")
+            ->groupBy('month')
+            ->get()
+            ->keyBy('month');
+
+        $fuelLineLabels = [];
+        $fuelAddedValues = [];
+        $fuelRemovedValues = [];
+
+        for ($i = 1; $i <= 12; $i++) {
+            $fuelLineLabels[] = Carbon::create(null, $i)->format('M');
+            $fuelAddedValues[] = $fuelMonthly[$i]->added ?? 0;
+            $fuelRemovedValues[] = $fuelMonthly[$i]->removed ?? 0;
+        }
+
+
+
         $labels = [];
         $values = [];
         for ($i = 1; $i <= 12; $i++) {
@@ -85,6 +166,19 @@ class AdminDashbaordController extends Controller
             $values[] = $monthlyExpenses[$i] ?? 0;
         }
 
-        return response()->json(['labels' => $labels, 'values' => $values]);
+        return response()->json([
+            'expense' => [
+                'labels' => $labels,
+                'values' => $values,
+            ],
+            'fuelSummary' => [
+                'values' => $fuelTypeValues,
+            ],
+            'fuelMonthly' => [
+                'labels' => $fuelLineLabels,
+                'added' => $fuelAddedValues,
+                'removed' => $fuelRemovedValues,
+            ],
+        ]);
     }
 }

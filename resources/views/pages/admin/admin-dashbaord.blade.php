@@ -106,11 +106,63 @@
             <canvas id="monthlyExpenseChart" height="150"></canvas>
         </div>
     </div>
+
+    {{-- FUEL STORAGE ANALYTICS --}}
+    <div class="p-3 mt-6 grid grid-cols-1 xl:grid-cols-2 gap-5">
+        {{-- Doughnut Chart --}}
+        <div class="bg-base-100 border border-gray-300 rounded-lg p-5">
+            <h2 class="text-lg font-semibold mb-4">Fuel Storage Distribution</h2>
+            <div class="relative h-80 w-full">
+                <canvas id="fuelTypeChart"></canvas>
+            </div>
+        </div>
+
+        {{-- Line Chart --}}
+        <div class="bg-base-100 border border-gray-300 rounded-lg p-5">
+            <h2 class="text-lg font-semibold mb-4">Fuel Movement Per Month</h2>
+            <div class="relative h-80 w-full">
+                <canvas id="fuelMonthlyChart"></canvas>
+            </div>
+        </div>
+    </div>
 @endsection
 
 @push('scripts')
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
+        // ===== AJAX Filter =====
+        $('#filterForm').submit(function (e) {
+            e.preventDefault();
+            const month = $(this).find('select[name="month"]').val();
+            const year = $(this).find('select[name="year"]').val();
+
+            $.ajax({
+                url: '{{ route("admin.dashboard.chart") }}',
+                type: 'GET',
+                data: { month, year },
+                success: function (res) {
+
+                    // Vehicle expense line chart
+                    lineChart.data.labels = res.expense.labels;
+                    lineChart.data.datasets[0].data = res.expense.values;
+                    lineChart.update();
+
+                    // Fuel summary doughnut
+                    fuelTypeChart.data.datasets[0].data = res.fuelSummary.values;
+                    fuelTypeChart.update();
+
+                    // Fuel monthly movement
+                    fuelMonthlyChart.data.labels = res.fuelMonthly.labels;
+                    fuelMonthlyChart.data.datasets[0].data = res.fuelMonthly.added;
+                    fuelMonthlyChart.data.datasets[1].data = res.fuelMonthly.removed;
+                    fuelMonthlyChart.update();
+                },
+                error: function () {
+                    alert('Failed to fetch chart data!');
+                }
+            });
+        });
+
         // ===== Bar Chart (Expense per Type) =====
         const barCtx = document.getElementById('vehicleExpenseChart').getContext('2d');
         new Chart(barCtx, {
@@ -165,25 +217,58 @@
             }
         });
 
-        // ===== AJAX Filter =====
-        $('#filterForm').submit(function (e) {
-            e.preventDefault();
-            const month = $(this).find('select[name="month"]').val();
-            const year = $(this).find('select[name="year"]').val();
 
-            $.ajax({
-                url: '{{ route("admin.dashboard.chart") }}',
-                type: 'GET',
-                data: { month, year },
-                success: function (res) {
-                    lineChart.data.labels = res.labels;
-                    lineChart.data.datasets[0].data = res.values;
-                    lineChart.update();
-                },
-                error: function () {
-                    alert('Failed to fetch chart data!');
+
+        const fuelTypeCtx = document.getElementById('fuelTypeChart').getContext('2d');
+
+        let fuelTypeChart = new Chart(fuelTypeCtx, {
+            type: 'doughnut',
+            data: {
+                labels: @json($fuelTypeLabels),
+                datasets: [{
+                    data: @json($fuelTypeValues),
+                    backgroundColor: [
+                        'rgba(34,197,94,0.7)',   // green added
+                        'rgba(239,68,68,0.7)'    // red removed
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: { position: 'bottom' }
                 }
-            });
+            }
+        });
+
+        const fuelMonthlyCtx = document.getElementById('fuelMonthlyChart').getContext('2d');
+
+        let fuelMonthlyChart = new Chart(fuelMonthlyCtx, {
+            type: 'line',
+            data: {
+                labels: @json($fuelLineLabels),
+                datasets: [
+                    {
+                        label: 'Fuel Added',
+                        data: @json($fuelAddedValues),
+                        borderColor: 'rgba(34,197,94,1)',
+                        backgroundColor: 'rgba(34,197,94,0.2)',
+                        tension: 0.3
+                    },
+                    {
+                        label: 'Fuel Removed',
+                        data: @json($fuelRemovedValues),
+                        borderColor: 'rgba(239,68,68,1)',
+                        backgroundColor: 'rgba(239,68,68,0.2)',
+                        tension: 0.3
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                scales: { y: { beginAtZero: true } }
+            }
         });
     </script>
 @endpush

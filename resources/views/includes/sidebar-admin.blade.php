@@ -106,7 +106,7 @@
                             </path>
                             <path d="M8 11h8v2H8zm0 4h8v2H8zm0-8h3v2H8z"></path>
                         </svg>
-                        Manage Request Ticekt
+                        Manage Request Ticket
                     </a>
                 </li>
                 <li>
@@ -139,12 +139,12 @@
 </div>
 
 <div class="space-y-1">
-    <p>Manage Tickets</p>
+    <p>Manage Vehicles</p>
     <li>
-        {{-- Tickets Links --}}
+        {{-- Vehicles Links --}}
         <details>
             <summary
-                class="{{ Request::routeIs(['vehicle.index', 'manage.vehicle.index', 'vehicle.create']) ? 'bg-gray-200 p-3 border-l-2 border-blue-500 rounded-l-sm mb-1' : 'p-3 mb-1' }}">
+                class="{{ Request::routeIs(['vehicle.index', 'manage.vehicle.index', 'manage.repair.vehicle', 'vehicle.create', 'analytics.vehicle.index']) ? 'bg-gray-200 p-3 border-l-2 border-blue-500 rounded-l-sm mb-1' : 'p-3 mb-1' }}">
                 <svg class="h-[1em]" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor"
                     viewBox="0 0 24 24">
                     <!--Boxicons v3.0.8 https://boxicons.com | License  https://docs.boxicons.com/free-->
@@ -205,7 +205,7 @@
                                 d="M20.71 6.04a.99.99 0 0 0-.9.27l-3.18 3.18-2.12-2.12 3.18-3.18a.98.98 0 0 0 .27-.9c-.07-.33-.29-.6-.6-.73A7.47 7.47 0 0 0 9.2 4.19a7.49 7.49 0 0 0-1.86 7.52L2.3 16.75c-.19.19-.29.44-.29.71s.11.52.29.71l3.54 3.54c.19.19.44.29.71.29s.52-.11.71-.29l5.04-5.04c2.64.82 5.53.12 7.52-1.86a7.47 7.47 0 0 0 1.63-8.16c-.13-.31-.4-.53-.73-.6Zm-2.32 7.34a5.51 5.51 0 0 1-5.98 1.2c-.37-.15-.8-.07-1.09.22l-4.78 4.78-2.12-2.12 4.78-4.78c.29-.29.37-.71.22-1.09a5.47 5.47 0 0 1 1.2-5.98 5.5 5.5 0 0 1 4.41-1.59l-2.65 2.65a.996.996 0 0 0 0 1.41l3.54 3.54c.19.19.44.29.71.29s.52-.11.71-.29l2.65-2.65c.16 1.61-.4 3.23-1.59 4.42Z">
                             </path>
                         </svg>
-                        Repair Vehicle
+                        Repair Vehicle Expenses
                     </a>
                 </li>
                 <li>
@@ -219,6 +219,41 @@
                             </path>
                         </svg>
                         Vehicle Expenses
+                    </a>
+                </li>
+            </ul>
+        </details>
+    </li>
+</div>
+
+<div class="space-y-1">
+    <p>Fuel Storage</p>
+    <li>
+        {{-- Fuel Storage Links --}}
+        <details>
+            <summary
+                class="{{ Request::routeIs(['fuel.storage.index']) ? 'bg-gray-200 p-3 border-l-2 border-blue-500 rounded-l-sm mb-1' : 'p-3 mb-1' }}">
+                <svg class="h-[1em]" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor"
+                    viewBox="0 0 24 24">
+                    <!--Boxicons v3.0.8 https://boxicons.com | License  https://docs.boxicons.com/free-->
+                    <path
+                        d="m16.62 3.22-1.25 1.56 3.87 3.1c.48.38.75.95.75 1.56V18c0 .55-.45 1-1 1s-1-.45-1-1v-3c0-1.65-1.35-3-3-3h-1V5c0-1.1-.9-2-2-2H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2v-5h1c.55 0 1 .45 1 1v3c0 1.65 1.35 3 3 3s3-1.35 3-3V9.44c0-1.22-.55-2.36-1.5-3.12l-3.87-3.1ZM12 5v4H4V5zM4 19v-8h8v8z">
+                    </path>
+                </svg>
+                Manage Fuel Storage
+            </summary>
+            <ul>
+                <li>
+                    <a href="{{ route('fuel.storage.index') }}"
+                        class="{{ Request::routeIs('fuel.storage.index') ? 'bg-gray-200 p-3 border-l-2 border-blue-500 rounded-l-sm' : 'p-3' }}">
+                        <svg class="h-[1em]" xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                            fill="currentColor" viewBox="0 0 24 24">
+                            <!--Boxicons v3.0.8 https://boxicons.com | License  https://docs.boxicons.com/free-->
+                            <path
+                                d="m16.62 3.22-1.25 1.56 3.87 3.1c.48.38.75.95.75 1.56V18c0 .55-.45 1-1 1s-1-.45-1-1v-3c0-1.65-1.35-3-3-3h-1V5c0-1.1-.9-2-2-2H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2v-5h1c.55 0 1 .45 1 1v3c0 1.65 1.35 3 3 3s3-1.35 3-3V9.44c0-1.22-.55-2.36-1.5-3.12l-3.87-3.1ZM12 5v4H4V5zM4 19v-8h8v8z">
+                            </path>
+                        </svg>
+                        Fuel Storage Stocks
                     </a>
                 </li>
             </ul>

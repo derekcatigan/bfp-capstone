@@ -35,7 +35,7 @@
 
         <div class="text-center my-5">
             <h1 class="font-bold text-lg">DRIVER'S TRIP TICKET</h1>
-            <span id="preview_date">(Date)</span>
+            <span id="preview_ticket_date">(Date)</span>
         </div>
 
         <div class="mb-5">

@@ -118,8 +118,9 @@
                                     <li>Deduct used during the trip (to and from): <span class="form-line text-center"
                                             id="preview_deduct_trip"></span>liters
                                     </li>
-                                    <li>Balance in tank at the end of trip: <span
-                                            class="form-line text-center"></span>liters</li>
+                                    <li>Balance in tank at the end of trip:
+                                        <span class="form-line text-center" id="preview_end_balance"></span> liters
+                                    </li>
                                 </ol>
                             </div>
                         </li>

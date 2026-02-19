@@ -5,8 +5,10 @@ namespace App\Http\Controllers\Admin;
 use App\Models\Vehicle;
 use App\Enum\RoleEnum;
 use App\Http\Controllers\Controller;
+use App\Models\FuelStorage;
 use App\Models\TripTicket;
 use App\Models\User;
+use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -129,37 +131,37 @@ class TicketController extends Controller
             'purpose' => ['required', 'string', 'max:500'],
 
             // ================= TIME =================
-            'time_departed' => ['required', 'date_format:H:i'],
-            'time_arrival_destination' => ['required', 'date_format:H:i'],
-            'time_departure_destination' => ['required', 'date_format:H:i'],
-            'time_arrival_garage' => ['required', 'date_format:H:i'],
+            'time_departed' => ['nullable', 'date_format:H:i'],
+            'time_arrival_destination' => ['nullable', 'date_format:H:i'],
+            'time_departure_destination' => ['nullable', 'date_format:H:i'],
+            'time_arrival_garage' => ['nullable', 'date_format:H:i'],
 
             // ================= NUMERIC TRIP DATA =================
-            'distance' => ['required', 'numeric', 'min:0', 'max:2000'],
-            'balance_tank' => ['required', 'numeric', 'min:0'],
-            'issued_stock' => ['required', 'numeric', 'min:0'],
-            'purchased_trip' => ['required', 'numeric', 'min:0'],
-            'deduct_trip' => ['required', 'numeric', 'min:0'],
+            'distance' => ['nullable', 'numeric', 'min:0', 'max:2000'],
+            'balance_tank' => ['nullable', 'numeric', 'min:0'],
+            'issued_stock' => ['nullable', 'numeric', 'min:0'],
+            'purchased_trip' => ['nullable', 'numeric', 'min:0'],
+            'deduct_trip' => ['nullable', 'numeric', 'min:0'],
 
-            'gear_oil' => ['required', 'numeric', 'min:0'],
-            'lub_oil' => ['required', 'numeric', 'min:0'],
-            'grease_issued' => ['required', 'numeric', 'min:0'],
+            'gear_oil' => ['nullable', 'numeric', 'min:0'],
+            'lub_oil' => ['nullable', 'numeric', 'min:0'],
+            'grease_issued' => ['nullable', 'numeric', 'min:0'],
 
             // ================= SPEEDOMETER =================
-            'speedometer_start' => ['required', 'numeric', 'min:0'],
-            'speedometer_end' => ['required', 'numeric', 'gt:speedometer_start'],
+            'speedometer_start' => ['nullable', 'numeric', 'min:0'],
+            'speedometer_end' => ['nullable', 'numeric', 'gt:speedometer_start'],
 
             'remarks' => ['nullable', 'string', 'max:1000'],
 
             // ================= PASSENGERS =================
-            'passenger_name1' => ['nullable', 'string', 'max:255', 'required_with:passenger_date1'],
-            'passenger_date1' => ['nullable', 'date', 'required_with:passenger_name1'],
+            'passenger_name1' => ['nullable', 'string', 'max:255', 'nullable_with:passenger_date1'],
+            'passenger_date1' => ['nullable', 'date', 'nullable_with:passenger_name1'],
 
-            'passenger_name2' => ['nullable', 'string', 'max:255', 'required_with:passenger_date2'],
-            'passenger_date2' => ['nullable', 'date', 'required_with:passenger_name2'],
+            'passenger_name2' => ['nullable', 'string', 'max:255', 'nullable_with:passenger_date2'],
+            'passenger_date2' => ['nullable', 'date', 'nullable_with:passenger_name2'],
 
-            'passenger_name3' => ['nullable', 'string', 'max:255', 'required_with:passenger_date3'],
-            'passenger_date3' => ['nullable', 'date', 'required_with:passenger_name3'],
+            'passenger_name3' => ['nullable', 'string', 'max:255', 'nullable_with:passenger_date3'],
+            'passenger_date3' => ['nullable', 'date', 'nullable_with:passenger_name3'],
         ]);
 
         try {
@@ -180,7 +182,7 @@ class TicketController extends Controller
             }
 
             // Check if vehicle is already deployed
-            $vehicle = Vehicle::find($validated['vehicle_id']);
+            $vehicle = Vehicle::findOrFail($validated['vehicle_id']);
             if ($vehicle->status === 'Deployed') {
                 return response()->json([
                     'status' => 'error',
@@ -188,8 +190,36 @@ class TicketController extends Controller
                 ], 422);
             }
 
+            // ===== Calculate new fuel level =====
+            $balanceTank = $validated['balance_tank'] ?? 0;
+            $issuedStock = $validated['issued_stock'] ?? 0;
+            $purchasedTrip = $validated['purchased_trip'] ?? 0;
+            $deductTrip = $validated['deduct_trip'] ?? 0;
+
+            // Check FuelStorage for issued stock
+            if ($issuedStock > 0) {
+                $latestBalance = FuelStorage::latest('transaction_datetime')->value('running_balance') ?? 0;
+                if ($issuedStock > $latestBalance) {
+                    return response()->json([
+                        'status' => 'error',
+                        'message' => "Cannot issue {$issuedStock}L: only {$latestBalance}L available in storage.",
+                    ], 422);
+                }
+            }
+
+            // Calculate new fuel level
+            $newFuelLevel = $balanceTank + $issuedStock + $purchasedTrip - $deductTrip;
+
+            // Prevent exceeding vehicle tank capacity
+            if ($vehicle->fuel_tank_capacity !== null && $newFuelLevel > $vehicle->fuel_tank_capacity) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => "Cannot create trip: calculated fuel level ({$newFuelLevel}L) exceeds vehicle tank capacity ({$vehicle->fuel_tank_capacity}L).",
+                ], 422);
+            }
+
             // ===== Create Trip Ticket =====
-            TripTicket::create([
+            $ticket = TripTicket::create([
                 'user_id' => $userId,
                 'control_no' => $validated['control_no'],
                 'ticket_date' => $validated['ticket_date'],
@@ -205,10 +235,10 @@ class TicketController extends Controller
                 'time_departure_destination' => $validated['time_departure_destination'],
                 'time_arrival_garage' => $validated['time_arrival_garage'],
                 'approx_distance' => $validated['distance'],
-                'balance_tank' => $validated['balance_tank'],
-                'issued_stock' => $validated['issued_stock'],
-                'purchased_trip' => $validated['purchased_trip'],
-                'deduct_trip' => $validated['deduct_trip'],
+                'balance_tank' => $balanceTank,
+                'issued_stock' => $issuedStock,
+                'purchased_trip' => $purchasedTrip,
+                'deduct_trip' => $deductTrip,
                 'gear_oil_issued' => $validated['gear_oil'],
                 'lub_oil_issued' => $validated['lub_oil'],
                 'grease_issued' => $validated['grease_issued'],
@@ -223,11 +253,29 @@ class TicketController extends Controller
                 'passenger_date3' => $validated['passenger_date3'],
             ]);
 
+            // ===== Update vehicle fuel level =====
+            $vehicle->update([
+                'current_fuel_level' => $newFuelLevel
+            ]);
+
+            // ===== Deduct issued stock from FuelStorage =====
+            if ($issuedStock > 0) {
+                $latestBalance = FuelStorage::latest('transaction_datetime')->value('running_balance') ?? 0;
+                FuelStorage::create([
+                    'transaction_datetime' => Carbon::now(),
+                    'container_type' => 'Main Tank',
+                    'transaction_type' => 'removed',
+                    'amount' => $issuedStock,
+                    'running_balance' => max($latestBalance - $issuedStock, 0),
+                    'note' => "Issued for trip ticket: {$ticket->control_no}"
+                ]);
+            }
+
             DB::commit();
 
             return response()->json([
                 'status' => 'success',
-                'message' => 'Trip ticket created successfully and vehicle status updated.',
+                'message' => 'Trip ticket created successfully and vehicle fuel level updated.',
             ], 201);
         } catch (Throwable $e) {
             DB::rollBack();
@@ -276,17 +324,17 @@ class TicketController extends Controller
             'authorized_passenger' => 'nullable|string|max:255',
             'places_visit' => 'nullable|string|max:255',
             'purpose' => 'nullable|string',
-            'time_departed' => 'nullable',
+            'time_departed_garage' => 'nullable',
             'time_arrival_destination' => 'nullable',
             'time_departure_destination' => 'nullable',
             'time_arrival_garage' => 'nullable',
-            'distance' => 'nullable|numeric',
+            'approx_distance' => 'nullable|numeric',
             'balance_tank' => 'nullable|numeric',
             'issued_stock' => 'nullable|numeric',
             'purchased_trip' => 'nullable|numeric',
             'deduct_trip' => 'nullable|numeric',
-            'gear_oil' => 'nullable|numeric',
-            'lub_oil' => 'nullable|numeric',
+            'gear_oil_issued' => 'nullable|numeric',
+            'lub_oil_issued' => 'nullable|numeric',
             'grease_issued' => 'nullable|numeric',
             'speedometer_start' => 'nullable|numeric',
             'speedometer_end' => 'nullable|numeric',
@@ -299,7 +347,51 @@ class TicketController extends Controller
             'passenger_date3' => 'nullable|date',
         ]);
 
-        $ticket->update($validated);
+        DB::transaction(function () use ($ticket, $validated) {
+
+            $vehicle = $ticket->vehicle;
+
+            // Calculate new fuel level
+            $newFuelLevel =
+                ($validated['balance_tank'] ?? 0)
+                + ($validated['issued_stock'] ?? 0)
+                + ($validated['purchased_trip'] ?? 0)
+                - ($validated['deduct_trip'] ?? 0);
+
+            // Prevent new fuel level from exceeding vehicle capacity
+            if ($vehicle->fuel_tank_capacity !== null && $newFuelLevel > $vehicle->fuel_tank_capacity) {
+                throw new Exception("Cannot update trip: calculated fuel level ({$newFuelLevel}L) exceeds vehicle tank capacity ({$vehicle->fuel_tank_capacity}L).");
+            }
+
+            // Update ticket
+            $ticket->update($validated);
+
+            // Update vehicle fuel level
+            $ticket->vehicle->update([
+                'current_fuel_level' => $newFuelLevel
+            ]);
+
+            // Deduct issued_stock from FuelStorage
+            $issuedStock = $validated['issued_stock'] ?? 0;
+
+            if ($issuedStock > 0) {
+                $latestBalance = FuelStorage::latest('transaction_datetime')->value('running_balance') ?? 0;
+
+                // Prevent deduction if balance is insufficient
+                if ($issuedStock > $latestBalance) {
+                    throw new Exception("Cannot issue {$issuedStock}L: only {$latestBalance}L available in storage.");
+                }
+
+                FuelStorage::create([
+                    'transaction_datetime' => Carbon::now(),
+                    'container_type' => 'Main Tank',
+                    'transaction_type' => 'removed',
+                    'amount' => $issuedStock,
+                    'running_balance' => max($latestBalance - $issuedStock, 0),
+                    'note' => "Issued for trip ticket: {$ticket->control_no}"
+                ]);
+            }
+        });
 
         return response()->json([
             'success' => true,
@@ -377,6 +469,53 @@ class TicketController extends Controller
             return response()->json([
                 'status' => 'error',
                 'message' => 'Something went wrong.'
+            ], 500);
+        }
+    }
+
+    public function destroy(TripTicket $ticket)
+    {
+        if (Auth::user()->role !== RoleEnum::AdminRole) {
+            abort(403);
+        }
+
+        DB::beginTransaction();
+
+        try {
+
+            /*
+        |--------------------------------------------------------------------------
+        | Restore vehicle state depending on ticket status
+        |--------------------------------------------------------------------------
+        */
+
+            if ($ticket->status === 'active') {
+                // vehicle currently deployed
+                $ticket->vehicle()->update(['status' => 'Available']);
+            }
+
+            if ($ticket->status === 'submitted') {
+                // already returned — keep available
+                $ticket->vehicle()->update(['status' => 'Available']);
+            }
+
+            // delete ticket
+            $ticket->delete();
+
+            DB::commit();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Trip ticket deleted successfully.'
+            ]);
+        } catch (Throwable $e) {
+
+            DB::rollBack();
+            Log::error($e);
+
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Failed to delete ticket.'
             ], 500);
         }
     }

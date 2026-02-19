@@ -24,6 +24,7 @@ class ManageRepairController extends Controller
             'lub_oil_total' => 'nullable|numeric|min:0',
             'grease_total' => 'nullable|numeric|min:0',
             'repair_total' => 'nullable|numeric|min:0',
+            'description' => 'nullable|string|max:1000',
         ]);
 
         $vehicle = Vehicle::findOrFail($request->vehicle_id);
@@ -38,12 +39,15 @@ class ManageRepairController extends Controller
 
         foreach ($expenses as $type => $total) {
             if ($total && $total > 0) {
+                $typeLabel = ucfirst(str_replace('_', ' ', $type));
                 VehicleExpense::create([
                     'vehicle_id' => $vehicle->id,
                     'type' => $type,
                     'total_cost' => $total,
                     'expense_date' => now(),
-                    'description' => ucfirst(str_replace('_', ' ', $type)) . ' expense',
+                    'description'  => $request->description
+                        ? $typeLabel . ' - ' . $request->description
+                        : $typeLabel . ' expense',
                 ]);
             }
         }

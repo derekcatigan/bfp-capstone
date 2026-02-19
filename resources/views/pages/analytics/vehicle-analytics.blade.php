@@ -3,7 +3,7 @@
 
 @section('content')
     <div class="p-3">
-        <h1 class="text-2xl font-bold mb-5">Vehicle Expense Analytics</h1>
+        <h1 class="text-2xl font-bold mb-5">VEHICLE EXPENSE ANALYTICS</h1>
 
         {{-- SUMMARY CARDS --}}
         <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-5 gap-5 mb-6">
@@ -20,6 +20,43 @@
                 </div>
             @endforeach
         </div>
+
+        <form method="GET" class="card bg-base-100 border border-gray-300 shadow p-4 mb-6">
+            <div class="flex flex-col md:flex-row gap-2">
+
+                {{-- SEARCH --}}
+                <input type="text" name="search" value="{{ request('search') }}"
+                    placeholder="Search plate, description or type..." class="input input-bordered w-full">
+
+                {{-- MONTH --}}
+                <select name="month" class="select select-bordered w-full">
+                    <option value="">All Months</option>
+                    @foreach(range(1, 12) as $m)
+                        <option value="{{ $m }}" {{ request('month') == $m ? 'selected' : '' }}>
+                            {{ \Carbon\Carbon::create()->month($m)->format('F') }}
+                        </option>
+                    @endforeach
+                </select>
+
+                {{-- YEAR --}}
+                <select name="year" class="select select-bordered w-full">
+                    <option value="">All Years</option>
+
+                    @foreach(array_reverse(range(now()->year - 5, now()->year)) as $y)
+                        <option value="{{ $y }}" {{ request('year') == $y ? 'selected' : '' }}>
+                            {{ $y }}
+                        </option>
+                    @endforeach
+                </select>
+
+                <button class="btn btn-primary">Filter</button>
+
+                <a href="{{ route('analytics.vehicle.index') }}" class="btn btn-warning">
+                    Reset
+                </a>
+
+            </div>
+        </form>
 
         {{-- RECENT EXPENSES TABLE --}}
         <div class="bg-base-100 border border-gray-300 rounded-lg p-5">

@@ -9,6 +9,7 @@ use App\Http\Controllers\Admin\TicketController;
 use App\Http\Controllers\Analytics\VehicleExpenseAnalyticsController;
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\Driver\DriverDashboardController;
+use App\Http\Controllers\Shared\FuelStorageController;
 use App\Http\Controllers\Shared\ManageRepairController;
 use App\Http\Controllers\Shared\NotificationController;
 use App\Http\Controllers\Shared\ProfileController;
@@ -73,7 +74,7 @@ Route::middleware('auth')->group(function () {
         Route::controller(TicketController::class)->group(function () {
             Route::get('/ticket/issue-ticket', 'create')->name('ticket.create');
             Route::post('/ticket/store', 'store')->name('ticket.store');
-            Route::patch('/ticket/{ticket}/activate', 'activate')->name('ticket.activate');
+            Route::delete('/tickets/{ticket}/delete', 'destroy')->name('ticket.destroy');
         });
 
         // Approve Request Trip Ticket
@@ -219,6 +220,7 @@ Route::middleware('auth')->group(function () {
         // TicketController
         Route::controller(TicketController::class)->group(function () {
             Route::get('/ticket', 'index')->name('ticket.index');
+            Route::patch('/ticket/{ticket}/activate', 'activate')->name('ticket.activate');
             Route::get('/tickets/{ticket}', 'show')->name('ticket.show');
             Route::get('/ticket/{ticket}/edit', 'edit')->name('ticket.edit');
             Route::put('/ticket/{ticket}/update', 'update')->name('ticket.update');
@@ -242,6 +244,13 @@ Route::middleware('auth')->group(function () {
         // VehicleExpenseAnalyticsController
         Route::controller(VehicleExpenseAnalyticsController::class)->group(function () {
             Route::get('/vehicle-analytics', 'index')->name('analytics.vehicle.index');
+        });
+
+        // FuelStorageController
+        Route::controller(FuelStorageController::class)->group(function () {
+            Route::get('/fuel-storage', 'index')->name('fuel.storage.index');
+            Route::get('/fuel-storage/list', 'list');
+            Route::post('/fuel-storage/store', 'store')->name('fuel.storage.store');
         });
     });
 

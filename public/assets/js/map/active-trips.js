@@ -39,7 +39,8 @@ $(document).on("click", ".trip-card", function () {
     const destinationName = $(this).data("destination-name");
     const tripId = $(this).data("trip-id");
 
-    if (!destLat || !destLon) return alert("Destination coordinates not found");
+    if (!destLat || !destLon)
+        return toastr.error("Destination coordinates not found");
 
     // Fetch latest driver location
     $.get(`/admin/active-trip/${tripId}/location`, function (data) {
@@ -90,12 +91,13 @@ function drawRoute(
         .then((res) => res.json())
         .then((data) => {
             if (!data.routes || !data.routes.length)
-                return alert("No route found");
+                return toastr.error("No route found");
 
             const routeCoords = data.routes[0].geometry.coordinates.map((c) => [
                 c[1],
                 c[0],
             ]);
+
             const durationMs = data.routes[0].duration * 1000;
 
             // Draw route line
