@@ -183,9 +183,12 @@
                             </button>
                         @endif
 
-                        <a href="{{ route('ticket.edit', $ticket->id) }}" class="btn btn-sm btn-warning">
-                            Edit
-                        </a>
+                        @if($ticket->status != 'submitted')
+                            <a href="{{ route('ticket.edit', $ticket->id) }}" class="btn btn-sm btn-warning">
+                                Edit
+                            </a>
+                        @endif
+
                         <button class="btn btn-sm btn-primary btn-view-ticket" data-id="{{ $ticket->id }}">
                             View Details
                         </button>

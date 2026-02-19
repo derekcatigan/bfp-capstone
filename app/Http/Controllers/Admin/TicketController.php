@@ -410,7 +410,7 @@ class TicketController extends Controller
         DB::beginTransaction();
         try {
             // Update ticket status
-            $ticket->update(['status' => 'Submitted']);
+            $ticket->update(['status' => 'submitted']);
 
             // Update vehicle status back to Available
             $ticket->vehicle()->update(['status' => 'Available']);
