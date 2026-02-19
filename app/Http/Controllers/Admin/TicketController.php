@@ -401,10 +401,6 @@ class TicketController extends Controller
 
     public function submit(TripTicket $ticket)
     {
-        if (Auth::user()->role !== RoleEnum::DriverRole) {
-            abort(403);
-        }
-
         if ($ticket->status !== 'active') {
             return response()->json([
                 'message' => 'Ticket already processed.'
@@ -438,10 +434,6 @@ class TicketController extends Controller
 
     public function activate(TripTicket $ticket)
     {
-        if (Auth::user()->role !== RoleEnum::AdminRole) {
-            abort(403);
-        }
-
         if ($ticket->status !== 'pending') {
             return response()->json([
                 'message' => 'Ticket must be pending first.'

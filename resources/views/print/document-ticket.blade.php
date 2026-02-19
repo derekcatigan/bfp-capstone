@@ -143,8 +143,10 @@
                                     <li>At end of trip: <span class="form-line text-center"
                                             id="preview_speedometer_end"></span>
                                     </li>
-                                    <li>Distance travelled (per No. 5 above): <span
-                                            class="form-line text-center"></span></li>
+                                    <li>
+                                        Distance travelled (per No. 5 above): <span class="form-line text-center"
+                                            id="preview_distance"></span>
+                                    </li>
                                     <li>Deduct used during the trip (to and from): <span
                                             class="form-line text-center"></span>
                                     </li>
