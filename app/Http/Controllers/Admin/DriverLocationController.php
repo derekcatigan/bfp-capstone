@@ -60,12 +60,12 @@ class DriverLocationController extends Controller
             return response()->json(['status' => 'tracking_disabled'], 403);
         }
 
-        $trip->update([
-            'latitude' => $request->latitude,
-            'longitude' => $request->longitude,
+        // SAVE LIVE DRIVER GPS HERE
+        $tracking->update([
+            'current_latitude' => $request->latitude,
+            'current_longitude' => $request->longitude,
+            'last_ping_at' => now()
         ]);
-
-        $tracking->update(['last_ping_at' => now()]);
 
         return response()->json(['status' => 'ok']);
     }

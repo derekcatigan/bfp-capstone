@@ -21,6 +21,8 @@ class TripTracking extends Model
         'is_tracking',
         'started_at',
         'stopped_at',
+        'current_latitude',
+        'current_longitude',
         'last_ping_at'
     ];
 

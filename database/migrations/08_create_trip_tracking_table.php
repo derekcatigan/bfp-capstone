@@ -12,12 +12,14 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('trip_tracking', function (Blueprint $table) {
-            $table->uuid('trip_id')->primary(); // one tracking row per trip ticket
+            $table->uuid('trip_id')->primary();
 
             $table->boolean('is_tracking')->default(true);
 
             $table->timestamp('started_at')->nullable();
             $table->timestamp('stopped_at')->nullable();
+            $table->decimal('current_latitude', 10, 7)->nullable();
+            $table->decimal('current_longitude', 10, 7)->nullable();
             $table->timestamp('last_ping_at')->nullable();
 
             $table->timestamps();

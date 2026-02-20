@@ -32,24 +32,6 @@ class UserSeeder extends Seeder
             'position' => 'Administrator',
         ]);
 
-        // User Account
-        $accountUser = User::create([
-            'employee_code' => 'EMP-1002',
-            'username' => 'User',
-            'phone' => '09000000002',
-            'email' => 'user@email.com',
-            'role' => RoleEnum::UserRole,
-            'password' => 'password',
-        ]);
-
-        $accountUser->profile()->create([
-            'first_name' => 'User',
-            'last_name' => 'Sample',
-            'driver_code' => null,
-            'department' => 'Fire Operations',
-            'position' => 'User',
-        ]);
-
         // Driver Account
         $accountUser = User::create([
             'employee_code' => 'EMP-1003',

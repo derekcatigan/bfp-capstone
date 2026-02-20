@@ -27,9 +27,11 @@ class ActiveTripController extends Controller
             return response()->json(['error' => 'Trip not active'], 403);
         }
 
+        $tracking = $trip->tracking;
+
         return response()->json([
-            'latitude' => $trip->latitude,
-            'longitude' => $trip->longitude,
+            'latitude' => $tracking?->current_latitude,
+            'longitude' => $tracking?->current_longitude,
             'control_no' => $trip->control_no,
             'driver_name' => $trip->driver?->profile?->first_name . ' ' . $trip->driver?->profile?->last_name,
         ]);

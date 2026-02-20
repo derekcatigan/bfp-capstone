@@ -202,6 +202,14 @@ Route::middleware('auth')->group(function () {
             Route::get('/admin/active-trip/{trip}/location', 'location')->name('active-trip.location');
         });
 
+        // DriverLocationController
+        Route::get('/driver/{trip}/location', [DriverLocationController::class, 'index'])
+            ->name('driver.location.index');
+        Route::post('/driver/{trip}/toggle-tracking', [DriverLocationController::class, 'toggleTracking'])
+            ->name('driver.toggle-tracking');
+        Route::post('/driver/{trip}/update-location', [DriverLocationController::class, 'updateLocation'])
+            ->name('driver.update-location');
+
         // RequestVehicleController
         Route::controller(RequestVehicleController::class)->group(function () {
             Route::get('/vehicle/manage-repair', 'repairIndex')->name('manage.vehicle.index');
@@ -226,14 +234,6 @@ Route::middleware('auth')->group(function () {
             Route::put('/ticket/{ticket}/update', 'update')->name('ticket.update');
             Route::patch('/ticket/{ticket}/submit', 'submit')->name('ticket.submit');
         });
-
-        // DriverLocationController
-        Route::get('/driver/{trip}/location', [DriverLocationController::class, 'index'])
-            ->name('driver.location.index');
-        Route::post('/driver/{trip}/toggle-tracking', [DriverLocationController::class, 'toggleTracking'])
-            ->name('driver.toggle-tracking');
-        Route::post('/driver/{trip}/update-location', [DriverLocationController::class, 'updateLocation'])
-            ->name('driver.update-location');
 
         // ManageRepairController
         Route::controller(ManageRepairController::class)->group(function () {
